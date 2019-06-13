@@ -39,7 +39,7 @@ public class MapSelectInventory extends GUI {
     }
 
     @Override
-    public void handleClick(DragonGame game, Wrapper wrapper, Player player, int slot, ClickType clickType) {
+    public void handleClick(DragonGame game, Wrapper wrapper, Player player, Inventory inventory, int slot, ClickType clickType) {
         if (slot == 49) {
             //They presssed the refresh button. Just close the GUI and open it again.
             player.closeInventory();

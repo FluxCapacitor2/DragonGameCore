@@ -38,7 +38,7 @@ public class JoinInventory extends GUI {
     }
 
     @Override
-    public void handleClick(DragonGame game, Wrapper wrapper, Player player, int slot, ClickType clickType) {
+    public void handleClick(DragonGame game, Wrapper wrapper, Player player, Inventory inventory, int slot, ClickType clickType) {
         switch (slot) {
             case 5:
                 //Select preferred team

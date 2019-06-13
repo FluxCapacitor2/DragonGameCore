@@ -14,5 +14,5 @@ public abstract class GUI {
 
     public abstract void open(DragonGame game, Player player);
 
-    public abstract void handleClick(DragonGame game, Wrapper wrapper, Player player, int slot, ClickType clickType);
+    public abstract void handleClick(DragonGame game, Wrapper wrapper, Player player, Inventory inventory, int slot, ClickType clickType);
 }
