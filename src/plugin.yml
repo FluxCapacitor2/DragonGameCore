@@ -8,7 +8,7 @@ commands:
     usage: "§cUsage: /join <game> [map]"
   joingui:
     description: Shows the join GUI for the specified minigame.
-    usage: /joingui <game>
+    usage: "§cUsage: /joingui <game>"
   leave:
     description: Leave a minigame.
     usage: "§cUsage: /leave"
