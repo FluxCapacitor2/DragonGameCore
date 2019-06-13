@@ -68,7 +68,13 @@ public class Queue {
             this.timer.run();
         } else {
             //There's already a game being played. They will just chill in the queue for now.
-            this.queue.add(player);
+            if (player.hasPermission("arcade.priorityqueue")) {
+                //Put them at the front of the line
+                this.queue.add(0, player);
+            } else {
+                //"Back of the line, commoner!"
+                this.queue.add(player);
+            }
             player.sendMessage(Main.colorize("&aYou have queued for &f" + game.getName() + "&a on &f" + map.name + "&a. You are at position " +
                     "&f" + (this.queue.indexOf(player) + 1) + "&a/&f" + this.queue.size() + "&a in the queue."));
         }
@@ -210,6 +216,8 @@ public class Queue {
                     Player last = x.getPlayers().get(x.getPlayers().size() - 1);
                     x.removePlayer(last);
                     y.addPlayer(last);
+                    last.teleport(map.getSpawnPoint(y));
+                    last.sendMessage(Main.colorize("&aDue to team balancing, you were moved to the " + y.getTeamName() + "&r&a team."));
                     //If they're still unbalanced, call the method again because we won't get to come back to this.
                     if (x.getPlayers().size() >= y.getPlayers().size() + 2) balanceTeams();
                 }
