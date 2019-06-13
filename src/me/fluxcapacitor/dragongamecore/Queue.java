@@ -71,17 +71,18 @@ public class Queue {
             //There's already a game being played. They will just chill in the queue for now.
             if (player.hasPermission("arcade.priorityqueue")) {
                 //Put them in front of people without priority queue
-
+                boolean added = false;
                 for (int i = 0; i < this.queue.size(); i++) {
                     Player p = this.queue.get(i);
                     if (!p.hasPermission("arcade.priorityqueue")) {
-                        this.queue.add(p);
+                        this.queue.add(i, player);
+                        added = true;
                         break;
                     }
                 }
-                this.queue.add(0, player);
+                if (!added) this.queue.add(player);
             } else {
-                //"Back of the line, commoner!"
+                //They don't have priority queue. Just put them at the back of the queue.
                 this.queue.add(player);
             }
             player.sendMessage(Main.colorize("&aYou have queued for &f" + game.getName() + "&a on &f" + map.name + "&a. You are at position " +
@@ -284,7 +285,7 @@ public class Queue {
 
     void resetVariables(boolean preserveQueue) {
         for (Team t : teams) {
-            t.team.unregister();
+            if (t.team != null) t.team.unregister();
         }
         this.canDeclareWinner = false;
         this.timerStarted = false;
