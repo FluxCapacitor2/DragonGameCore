@@ -286,7 +286,7 @@ public class Queue {
         for (Team t : this.teams) {
             t.removePlayer(player);
             Debug.verbose(player.getName() + " was removed from their teams.");
-            if (t.getPlayers().size() == 0) {
+            if (game.isFFA() && t.getPlayers().size() == 0) {
                 this.teams.remove(t);
                 Debug.verbose("The team " + t.getTeamName() + " was removed because there were no players after the removal of " + player.getName() + ".");
             }
