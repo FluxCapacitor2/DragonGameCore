@@ -2,6 +2,7 @@ package me.fluxcapacitor.dragongamecore.inventories;
 
 import me.fluxcapacitor.dragongamecore.DragonGame;
 import me.fluxcapacitor.dragongamecore.Wrapper;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -41,7 +42,9 @@ public class GUIManager implements Listener {
                 Wrapper wrapper = game.getWrapper();
                 int slot = event.getSlot();
                 event.setCancelled(true);
-                gui.handleClick(game, wrapper, player, inventory, slot, event.getClick());
+                if (!inventory.getItem(slot).getType().equals(Material.AIR)) {
+                    gui.handleClick(game, wrapper, player, inventory, slot, event.getClick());
+                }
             }
         }
     }
