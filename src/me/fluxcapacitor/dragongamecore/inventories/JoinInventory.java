@@ -19,8 +19,8 @@ public class JoinInventory extends GUI {
         inv.setItem(12, Items.createItem("&aQuick Join", Material.PAPER, new String[]
                 {"&7BlueDragon will decide what game", "&7will start fastest, and put you", "&7right in."}));
         //Choose team
-        inv.setItem(5, Items.createItem("&eSelect Preferred Team", Material.GOLD_SWORD, new String[]
-                {"&7Pick a team that you prefer to", "&7join before you join a game."}));
+        if (!game.isFFA()) inv.setItem(4, Items.createItem("&eSelect Preferred Team", Material.GOLD_SWORD,
+                new String[] {"&7Pick a team that you prefer to", "&7join before you join a game."}));
         //Game info
         inv.setItem(13, Items.createItem("&e&l" + game.getName(), Material.EMERALD, new String[]
                 {"&fClick for game information"}));
@@ -40,7 +40,7 @@ public class JoinInventory extends GUI {
     @Override
     public void handleClick(DragonGame game, Wrapper wrapper, Player player, Inventory inventory, int slot, ClickType clickType) {
         switch (slot) {
-            case 5:
+            case 4:
                 //Select preferred team
                 player.closeInventory();
                 Main.instance.guiManager.teamInv.open(game, player);
