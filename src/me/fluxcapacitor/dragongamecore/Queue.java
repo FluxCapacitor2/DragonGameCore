@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Queue {
     final int START_REQUIREMENT;
@@ -336,11 +337,12 @@ public class Queue {
     }
 
     public void removePlayerFromTeams(Player player) {
-        for (Team t : this.teams) {
+        for (Iterator it = teams.iterator(); it.hasNext(); ) {
+            Team t = (Team) it.next();
             t.removePlayer(player);
             Debug.verbose(player.getName() + " was removed from their teams.");
             if (game.isFFA() && t.getPlayers().size() == 0) {
-                this.teams.remove(t);
+                it.remove();
                 Debug.verbose("The team " + t.getTeamName() + " was removed because there were no players after the removal of " + player.getName() + ".");
             }
         }
