@@ -8,7 +8,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,14 +39,9 @@ public class Wrapper {
     }
 
     public static void teleportToSpawn(Player player) {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                player.setGameMode(GameMode.SURVIVAL);
-                TitleAPI.clearTitle(player);
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "spawn " + player.getName());
-            }
-        }.runTaskLater(Main.instance, 1L);
+        player.setGameMode(GameMode.SURVIVAL);
+        TitleAPI.clearTitle(player);
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "spawn " + player.getName());
     }
 
     public static DragonGame findGame(Player player) {
