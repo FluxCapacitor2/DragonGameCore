@@ -217,4 +217,8 @@ public class DragonGame {
     public void setTeams(ArrayList<Team> teams) {
         this.teams = teams;
     }
+
+    public ArrayList<Team> getTeams() {
+        return this.teams;
+    }
 }
