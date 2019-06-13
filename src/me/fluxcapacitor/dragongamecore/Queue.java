@@ -2,9 +2,14 @@ package me.fluxcapacitor.dragongamecore;
 
 import com.connorlinfoot.titleapi.TitleAPI;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Queue {
@@ -110,17 +115,40 @@ public class Queue {
                 this.teams.add(newTeam);
             }
         } else {
-            //If not, assign them to the team with the least players on it.
-            int min = this.teams.get(0).getPlayers().size();
-            Team best = this.teams.get(0);
-            for (Team t : this.teams) {
-                if (t.getPlayers().size() < min) {
-                    min = t.getPlayers().size();
-                    best = t;
+            Team preferredTeam = null;
+            try {
+                FileConfiguration config = Main.instance.getConfig();
+                File file = game.getMapsFile();
+                config.load(file);
+                String query = (String) config.get("playerdata.preferredTeams." + player.getUniqueId());
+                for (Team t : teams) {
+                    if (ChatColor.stripColor(t.getTeamName()).equals(ChatColor.stripColor(query))) {
+                        //This is their preferred team!
+                        preferredTeam = t;
+                    }
                 }
+            } catch (IOException | InvalidConfigurationException e) {
+                Debug.warn("There was an error saving / loading the config file for " + game.getName() + ".");
+                Debug.warn("The error is printed below.");
+                Debug.warn(e.getMessage());
+                e.printStackTrace();
             }
-            best.addPlayer(player);
-            Debug.verbose("Added " + player.getName() + " to the team " + best.getTeamName());
+
+            if (preferredTeam != null) {
+                preferredTeam.addPlayer(player);
+            } else {
+                //They didn't select a preferred team: assign them to the team with the least players on it.
+                int min = this.teams.get(0).getPlayers().size();
+                Team best = this.teams.get(0);
+                for (Team t : this.teams) {
+                    if (t.getPlayers().size() < min) {
+                        min = t.getPlayers().size();
+                        best = t;
+                    }
+                }
+                best.addPlayer(player);
+                Debug.verbose("Added " + player.getName() + " to the team " + best.getTeamName());
+            }
         }
         //Teleport them to the map's spawn point
         try {
@@ -153,6 +181,8 @@ public class Queue {
     }
 
     private void startGame() {
+        //Balance teams
+        this.balanceTeams();
         //Reset the players' invincibility
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rg flag __global__ invincible -w " + map.queue.getWorldName());
         for (Team t : this.teams) {
@@ -170,6 +200,21 @@ public class Queue {
         //To start the code that declares a winner on death and other things, set the game started to true
         this.gameStarted = true;
         this.canDeclareWinner = true;
+    }
+
+    private void balanceTeams() {
+        for (Team x : this.teams) {
+            for (Team y : this.teams) {
+                if (x.getPlayers().size() >= y.getPlayers().size() + 2) {
+                    //The team is unbalanced. Move a player from x to y
+                    Player last = x.getPlayers().get(x.getPlayers().size() - 1);
+                    x.removePlayer(last);
+                    y.addPlayer(last);
+                    //If they're still unbalanced, call the method again because we won't get to come back to this.
+                    if (x.getPlayers().size() >= y.getPlayers().size() + 2) balanceTeams();
+                }
+            }
+        }
     }
 
     private void countDown(CountdownTimer t) {
