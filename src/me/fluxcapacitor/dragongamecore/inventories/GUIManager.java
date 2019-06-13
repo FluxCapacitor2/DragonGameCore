@@ -42,7 +42,7 @@ public class GUIManager implements Listener {
                 Wrapper wrapper = game.getWrapper();
                 int slot = event.getSlot();
                 event.setCancelled(true);
-                if (!inventory.getItem(slot).getType().equals(Material.AIR)) {
+                if (inventory.getItem(slot) != null && !inventory.getItem(slot).getType().equals(Material.AIR)) {
                     gui.handleClick(game, wrapper, player, inventory, slot, event.getClick());
                 }
             }
