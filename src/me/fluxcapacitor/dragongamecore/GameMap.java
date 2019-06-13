@@ -145,16 +145,26 @@ public class GameMap {
     }
 
     public Location getSpawnPoint(Team team) {
-        if (game.isFFA() || team == null) {
-            Coordinate point = this.spawnPoints.get(new Random().nextInt(this.spawnPoints.size()));
-            Location location = point.asLocation(this.queue.getWorldName());
-            return location.add(0.5, 0, 0.5);
+        if (team == null) {
+            try {
+                Coordinate point = this.spawnPoints.get(new Random().nextInt(this.spawnPoints.size()));
+                Location location = point.asLocation(this.queue.getWorldName());
+                return location.add(0.5, 0, 0.5);
+            } catch (NullPointerException | IllegalArgumentException | IndexOutOfBoundsException ignored) {
+                return game.getTeams().get(0).getSpawnPoint();
+            }
         } else {
-            //This is a team game. Get the team's spawn point.
-            for (Team t : this.getTeams()) {
-                if (t.getTeamName().equals(team.getTeamName())) {
-                    //We found a match!
-                    return t.getSpawnPoint();
+            if (game.isFFA()) {
+                Coordinate point = this.spawnPoints.get(new Random().nextInt(this.spawnPoints.size()));
+                Location location = point.asLocation(this.queue.getWorldName());
+                return location.add(0.5, 0, 0.5);
+            } else {
+                //This is a team game. Get the team's spawn point.
+                for (Team t : this.getTeams()) {
+                    if (t.getTeamName().equals(team.getTeamName())) {
+                        //We found a match!
+                        return t.getSpawnPoint();
+                    }
                 }
             }
         }
