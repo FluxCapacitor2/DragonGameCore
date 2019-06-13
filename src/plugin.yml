@@ -1,0 +1,64 @@
+name: DragonGameCore
+description: An API for building BlueDragon's minigames.
+main: me.fluxcapacitor.dragongamecore.Main
+version: 2.0-BETA
+commands:
+  join:
+    description: Join a minigame.
+    usage: "§cUsage: /join <game> [map]"
+  joingui:
+    description: Shows the join GUI for the specified minigame.
+    usage: /joingui <game>
+  leave:
+    description: Leave a minigame.
+    usage: "§cUsage: /leave"
+    aliases: ['aaleave']
+  maps:
+    description: List all maps for a minigame.
+    usage: "§cUsage: /maps <game>"
+    aliases: ['maplist', 'mapslist', 'aamaps']
+  games:
+    description: List all minigames.
+    usage: "§cUsage: /games"
+    aliases: ['aagames']
+  spec:
+    description: Spectate a player in a game as a spectator.
+    usage: "§cUsage: /spec <player>"
+    aliases: ['spectate']
+  aaaddmap:
+    description: Add a map to a minigame.
+    usage: "§cUsage: /aaaddmap <game> <x1> <y1> <z1> <x2> <y2> <z2> <mapName>"
+    aliases: ['setmap', 'addmap']
+    permission: arcade.admin.aaaddmap
+    permission-message: '§cYou must be at least §cAdmin §cto execute this command.'
+  aaremovemap:
+    description: Remove a map from a minigame.
+    usage: "§cUsage: /aaremovemap <game> <mapName>"
+    aliases: ['delmap', 'deletemap', 'remmap', 'removemap']
+    permission: arcade.admin.aaremovemap
+    permission-message: '§cYou must be at least §cAdmin §cto execute this command.'
+  aastop:
+    description: Stop all (or specified) minigame(s).
+    usage: "§cUsage: /aastop [game]"
+    permission: arcade.admin.aastop
+    permission-message: '§cYou must be at least §6Moderator §cto execute this command.'
+  aareload:
+    description: Reload the config and maps file of a minigame.
+    usage: "§cUsage: /aareload [game]"
+    permission: arcade.admin.aareload
+    permission-message: '§cYou must be at least §cAdmin §cto execute this command.'
+  aaupdate:
+    description: Updates player counts and status placeholders for minigame(s).
+    usage: "§cUsage: /aaupdate [game]"
+    permission: arcade.admin.aaupdate
+    permission-message: '§cYou must be at least §eHelper §crank to execute this command.'
+  aadebug:
+    description: Help debug DragonGameCore.
+    usage: "§cUsage: /aadebug"
+    permission: arcade.admin.debug
+    permission-message: '§cYou must be at least §cAdmin §cto execute this command.'
+  aaspawnpoint:
+    description: Add a spawn point for a team game at your current position.
+    usage: "§cUsage: /aaspawnpoint <game> <map> <team>"
+    permission: arcade.admin.spawnpoint
+    permission-message: '§cYou must be at least §cAdmin §cto execute this command.'
