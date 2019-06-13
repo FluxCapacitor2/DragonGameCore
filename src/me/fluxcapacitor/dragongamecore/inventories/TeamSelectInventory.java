@@ -53,6 +53,7 @@ public class TeamSelectInventory extends GUI {
                     config.save(mapsFile);
                     player.closeInventory();
                     Debug.info("Set preferred team to " + t.getTeamName() + "&r for " + player.getName());
+                    player.sendMessage(Main.colorize("&bYour preferred team was set to &f" + t.getTeamName() + "&r&b."));
                 } catch (IOException | InvalidConfigurationException exception) {
                     Debug.warn("There was an error saving / loading the config file for " + game.getName() + ".");
                     Debug.warn("The error is printed below.");
