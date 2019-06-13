@@ -145,7 +145,7 @@ public class GameMap {
     }
 
     public Location getSpawnPoint(Team team) {
-        if (game.isFFA()) {
+        if (game.isFFA() || team == null) {
             Coordinate point = this.spawnPoints.get(new Random().nextInt(this.spawnPoints.size()));
             Location location = point.asLocation(this.queue.getWorldName());
             return location.add(0.5, 0, 0.5);
