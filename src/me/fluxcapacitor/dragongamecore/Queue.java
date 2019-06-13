@@ -44,7 +44,7 @@ public class Queue {
         this.game = game;
         this.gameLifecycle = game.getGameLifecycle();
         this.gameStartSubtitle = game.getStartSubtitle();
-        if (Main.isBeta()) COUNTDOWN_TIME = 5;
+        if (Main.isBeta()) COUNTDOWN_TIME = 10;
         else COUNTDOWN_TIME = countdownTime;
         START_REQUIREMENT = startRequirement;
         MAX_PLAYERS_PER_LOBBY = maxPlayers;
@@ -70,7 +70,15 @@ public class Queue {
         } else {
             //There's already a game being played. They will just chill in the queue for now.
             if (player.hasPermission("arcade.priorityqueue")) {
-                //Put them at the front of the line
+                //Put them in front of people without priority queue
+
+                for (int i = 0; i < this.queue.size(); i++) {
+                    Player p = this.queue.get(i);
+                    if (!p.hasPermission("arcade.priorityqueue")) {
+                        this.queue.add(p);
+                        break;
+                    }
+                }
                 this.queue.add(0, player);
             } else {
                 //"Back of the line, commoner!"
@@ -89,6 +97,8 @@ public class Queue {
     }
 
     private void preGame() {
+        //Reset the map
+        this.map.reset();
         //Put the top 10 players in the queue into the game
         for (int i = 0; i < MAX_PLAYERS_PER_LOBBY; i++) {
             if (this.queue.size() >= 1) {
@@ -103,8 +113,6 @@ public class Queue {
         }
         //Make everyone invincible
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rg flag __global__ invincible -w " + map.queue.getWorldName() + " allow");
-        //Reset the map
-        this.map.reset();
         //Run game-specific pregame method.
         gameLifecycle.pregame(game, map);
     }
@@ -190,6 +198,10 @@ public class Queue {
     private void startGame() {
         //Balance teams
         this.balanceTeams();
+        //Turn off friendly fire
+        for (Team t : teams) {
+            t.removeFriendlyFire();
+        }
         //Reset the players' invincibility
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rg flag __global__ invincible -w " + map.queue.getWorldName());
         for (Team t : this.teams) {
@@ -271,6 +283,9 @@ public class Queue {
     }
 
     void resetVariables(boolean preserveQueue) {
+        for (Team t : teams) {
+            t.team.unregister();
+        }
         this.canDeclareWinner = false;
         this.timerStarted = false;
         this.gameStarted = false;
@@ -301,8 +316,14 @@ public class Queue {
         this.teams = new ArrayList<>();
     }
 
-    public int getTeamCount() {
-        return this.teams.size();
+    public int getTeamCountWithPlayers() {
+        int count = 0;
+        for (Team t : this.teams) {
+            if (t.getPlayers().size() > 0) {
+                count++;
+            }
+        }
+        return count;
     }
 
     public int getPlayerCount() {
