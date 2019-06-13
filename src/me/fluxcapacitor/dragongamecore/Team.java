@@ -2,6 +2,7 @@ package me.fluxcapacitor.dragongamecore;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 
@@ -11,6 +12,7 @@ public class Team {
     ArrayList<Player> players;
     private String teamName;
     private Location spawnPoint;
+    private ItemStack material;
 
     @SuppressWarnings("unused")
     public Team() {
@@ -85,5 +87,13 @@ public class Team {
     public void setSpawnPoint(Location location) {
         Debug.verbose("Set spawn point of " + getTeamName() + " to " + location.toString());
         this.spawnPoint = location;
+    }
+
+    public ItemStack getMaterial() {
+        return material;
+    }
+
+    public void setMaterial(ItemStack material) {
+        this.material = material;
     }
 }
