@@ -59,7 +59,7 @@ public class EventListeners implements Listener {
                         map.queue.removePlayerFromTeams(player);
                         //There's 2+ people still in the game.
                         //Allow them to spectate.
-                        if (map.queue.teams.size() > 1) {
+                        if (map.queue.getTeamCountWithPlayers() > 1) {
                             Debug.verbose("There are enough people left in the game to allow " + player.getName() + " to spectate.");
                             //Set them into spectator mode & teleport them to the arena.
                             //Also tell them how to get out
@@ -72,6 +72,7 @@ public class EventListeners implements Listener {
                                             Main.colorizeWithoutPrefix("&aYou are now spectating"),
                                             Main.colorizeWithoutPrefix("&aTo leave, type &f/leave&a."));
                                     player.teleport(map.getSpawnPoint(player));
+                                    map.queue.spectators.add(player);
                                 }
                             }.runTaskLater(game.getInstance(), 2L);
                         } else {
