@@ -55,8 +55,8 @@ public class EventListeners implements Listener {
                     game.getGameLifecycle().onPlayerKill(game, map, player, player.getKiller(), event);
                     if (game.isSpectatingEnabled()) {
                         Debug.verbose("Spectating is enabled. " + player.getName() + " will be removed from their team & added as a spectator.");
-                        map.queue.spectators.add(player);
                         map.queue.removePlayerFromTeams(player);
+                        map.queue.spectators.add(player);
                         //There's 2+ people still in the game.
                         //Allow them to spectate.
                         if (map.queue.getTeamCountWithPlayers() > 1) {
@@ -72,7 +72,6 @@ public class EventListeners implements Listener {
                                             Main.colorizeWithoutPrefix("&aYou are now spectating"),
                                             Main.colorizeWithoutPrefix("&aTo leave, type &f/leave&a."));
                                     player.teleport(map.getSpawnPoint(player));
-                                    map.queue.spectators.add(player);
                                 }
                             }.runTaskLater(game.getInstance(), 2L);
                         } else {
