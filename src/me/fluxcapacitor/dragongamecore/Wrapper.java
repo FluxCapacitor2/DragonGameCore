@@ -262,24 +262,28 @@ public class Wrapper {
     public void cancelGamesIfUnderPlayerCount() {
         for (GameMap map : maps) {
             //Check if there's less players needed to start than required & the game hasn't started
-            if (map.queue.getTeams().size() < map.queue.START_REQUIREMENT && !map.queue.gameStarted && map.queue.timerStarted) {
+            if (map.queue.getTeamCountWithPlayers() < map.queue.START_REQUIREMENT && !map.queue.gameStarted && map.queue.timerStarted) {
                 //Cancel the current game
+                Debug.verbose("The game of " + map.getGame().getName() + " on " + map.name + " was cancelled because of a lack of players.");
                 map.queue.timer.cancelTimer();
-                map.queue.resetVariables(true);
-                map.queue.setupNextGame();
                 //Tell everyone what happened, teleport them back to spawn, and remove them from the game.
                 for (Team t : map.queue.getTeams()) {
                     for (Iterator<Player> it = t.getPlayers().iterator(); it.hasNext(); ) {
                         Player player = it.next();
+                        Debug.verbose("Informing " + player.getName() + " of a game cancellation because of a lack of players.");
+                        //Send them to spawn
+                        teleportToSpawn(player);
                         //Tell them what happened
                         TitleAPI.sendTitle(player, 20, 100, 20, Main.colorizeWithoutPrefix("&cCANCELLED"), Main.colorizeWithoutPrefix("&cThere aren't enough players to start!"));
                         player.sendMessage(Main.colorize("&cYour game was cancelled because of a lack of players."));
-                        //Send them to spawn
-                        teleportToSpawn(player);
                         //Remove them from the game
                         it.remove();
                     }
                 }
+                ArrayList<Player> queue = map.queue.queue;
+                map.queue.resetVariables(false);
+                map.queue.queue = queue;
+                map.queue.setupNextGame();
             }
         }
     }
