@@ -8,7 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class LeaveCommand implements CommandExecutor {
-    @SuppressWarnings("unused WeakerAccess")
+    @SuppressWarnings("unused")
     public static void removePlayerFromGame(Player player, DragonGame game) {
         Wrapper wrapper = game.getWrapper();
         for (GameMap map : wrapper.maps) {
@@ -22,6 +22,8 @@ public class LeaveCommand implements CommandExecutor {
                 if (t.getPlayers().contains(player)) {
                     player.sendMessage(Main.colorize("&aYou are no longer in &f" + game.getName() + " &aon &f" + map.name + "&a."));
                     t.removePlayer(player);
+                    Debug.verbose("Removed " + player.getName() + " from the team " + t.getTeamName() + "&r.");
+                    break;
                 }
             }
             if (map.queue.spectators.contains(player)) {
@@ -30,20 +32,22 @@ public class LeaveCommand implements CommandExecutor {
             }
             if (wasIngame) {
                 player.setGameMode(GameMode.SURVIVAL);
-                wrapper.updatePlayerCounts();
-                wrapper.cancelGamesIfUnderPlayerCount();
             }
             if (!player.getWorld().getName().equalsIgnoreCase("world")) {
                 Wrapper.clearInventory(player.getInventory());
+                player.setGameMode(GameMode.SURVIVAL);
                 Wrapper.teleportToSpawn(player);
             }
         }
+        wrapper.updatePlayerCounts();
+        wrapper.cancelGamesIfUnderPlayerCount();
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
+            Debug.verbose("Removing player from games (with /leave): " + player.getName());
             for (DragonGame game : Main.games) {
                 removePlayerFromGame(player, game);
             }
