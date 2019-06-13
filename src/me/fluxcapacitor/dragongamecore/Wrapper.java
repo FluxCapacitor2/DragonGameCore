@@ -246,6 +246,7 @@ public class Wrapper {
         }
         for (Player winner : winners) {
             Debug.verbose("Sending winning title to " + winner.getName());
+            Wrapper.clearInventory(winner.getInventory());
             TitleAPI.sendTitle(winner, 20, 100, 20,
                     Main.colorizeWithoutPrefix("&6&lWINNER"),
                     Main.colorizeWithoutPrefix(map.getGame().getWinnerSubtitle())
