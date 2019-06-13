@@ -98,7 +98,7 @@ public class GameMap {
 
     @SuppressWarnings("deprecation")
     public void reset() {
-        //Reset the map by looping over every saved block and resetting it to what was in maps.yml
+        //Reset the map by looping over every saved block and resetting it to what was in the maps file
         for (GameBlock block : this.blocks) {
             //Get info about the individual block
             Coordinate coordinate = block.getCoordinate();
@@ -122,6 +122,10 @@ public class GameMap {
             //Set the block
             Bukkit.getWorld(worldName).getBlockAt(x, y, z).setType(mat);
             Bukkit.getWorld(worldName).getBlockAt(x, y, z).setData(data);
+        }
+        //Reset the teams if it's a team game.
+        if (!game.isFFA()) {
+            this.queue.teams = game.getTeams();
         }
     }
 
