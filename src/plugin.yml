@@ -1,7 +1,7 @@
 name: DragonGameCore
 description: An API for building BlueDragon's minigames.
 main: me.fluxcapacitor.dragongamecore.Main
-version: "2.0"
+version: "2.1-BETA"
 commands:
   join:
     description: Join a minigame.
@@ -25,6 +25,10 @@ commands:
     description: Spectate a player in a game as a spectator.
     usage: "§cUsage: /spec <player>"
     aliases: ['spectate']
+  party:
+    description: Create or manage a party.
+    usage: "§cUsage: /party <invite|kick|disband|promote|leave|list|accept|deny|chat> ..."
+    aliases: ['p']
   aaaddmap:
     description: Add a map to a minigame.
     usage: "§cUsage: /aaaddmap <game> <x1> <y1> <z1> <x2> <y2> <z2> <mapName>"
