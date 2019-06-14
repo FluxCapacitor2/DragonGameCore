@@ -3,6 +3,9 @@ package me.fluxcapacitor.dragongamecore;
 import me.fluxcapacitor.dragongamecore.commands.*;
 import me.fluxcapacitor.dragongamecore.inventories.GUI;
 import me.fluxcapacitor.dragongamecore.inventories.GUIManager;
+import me.fluxcapacitor.dragongamecore.partycommands.Party;
+import me.fluxcapacitor.dragongamecore.partycommands.PartyCommand;
+import me.fluxcapacitor.dragongamecore.partycommands.PartyManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -13,10 +16,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scoreboard.Scoreboard;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class Main extends JavaPlugin {
     public static final ArrayList<DragonGame> games = new ArrayList<>();
@@ -53,6 +53,7 @@ public class Main extends JavaPlugin {
         this.getCommand("leave").setExecutor(new LeaveCommand());
         this.getCommand("games").setExecutor(new ListGamesCommand());
         this.getCommand("spec").setExecutor(new SpectateCommand());
+        this.getCommand("party").setExecutor(new PartyCommand());
         //Admin commands
         this.getCommand("aaaddmap").setExecutor(new AddMapCommand());
         this.getCommand("aaremovemap").setExecutor(new RemoveMapCommand());
@@ -68,6 +69,7 @@ public class Main extends JavaPlugin {
         this.getCommand("leave").setTabCompleter(this);
         this.getCommand("games").setTabCompleter(this);
         this.getCommand("spec").setTabCompleter(this);
+        this.getCommand("party").setTabCompleter(this);
         //Tab complete: Admin commands
         this.getCommand("aaaddmap").setTabCompleter(this);
         this.getCommand("aaremovemap").setTabCompleter(this);
@@ -87,9 +89,7 @@ public class Main extends JavaPlugin {
                 // Command: /aaaddmap ***<game>*** <x1> <y1> <z1> <x2> <y2> <z2> <name>
                 //Autocomplete game name
                 for (DragonGame game : games) {
-                    if (game.getName().toLowerCase().startsWith(args[0].toLowerCase())) {
-                        complete.add(game.getName());
-                    }
+                    complete.add(game.getName());
                 }
             } else if (args.length >= 2 && args.length <= 7) {
                 // Command: /aaaddmap <game name>  ***<x1> <y1> <z1> <x2> <y2> <z2>*** <name>
@@ -105,9 +105,7 @@ public class Main extends JavaPlugin {
             if (args.length == 1) {
                 //Autocomplete game name
                 for (DragonGame game : games) {
-                    if (game.getName().toLowerCase().startsWith(args[0].toLowerCase())) {
-                        complete.add(game.getName());
-                    }
+                    complete.add(game.getName());
                 }
             } else if (args.length == 2) {
                 //Autocomplete map name
@@ -129,9 +127,7 @@ public class Main extends JavaPlugin {
             //Autocomplete game name
             if (args.length == 1) {
                 for (DragonGame game : games) {
-                    if (game.getName().toLowerCase().startsWith(args[0].toLowerCase())) {
-                        complete.add(game.getName());
-                    }
+                    complete.add(game.getName());
                 }
             } else if (args.length == 2 && command.getName().equalsIgnoreCase("join") |
                     command.getName().equalsIgnoreCase("aaspawnpoint")) {
@@ -169,6 +165,36 @@ public class Main extends JavaPlugin {
                         }
                     }
                 }
+            }
+        } else if (command.getName().equalsIgnoreCase("party")) {
+            if (args.length == 1) {
+                complete.add("invite");
+                complete.add("kick");
+                complete.add("disband");
+                complete.add("promote");
+                complete.add("leave");
+                complete.add("list");
+                complete.add("accept");
+                complete.add("deny");
+                complete.add("chat");
+            } else if (args.length == 2) {
+                if (args[1].equalsIgnoreCase("invite") | args[1].equalsIgnoreCase("accept") |
+                        args[1].equalsIgnoreCase("deny")) {
+                    //Autocomplete players
+                    Bukkit.getOnlinePlayers().forEach(p -> complete.add(p.getName()));
+                } else if (args[1].equalsIgnoreCase("kick") | args[1].equalsIgnoreCase("promote")) {
+                    //Automplete party members
+                    Party party = PartyManager.findParty(player);
+                    if (party != null) {
+                        party.players.forEach(p -> complete.add(p.getName()));
+                    }
+                }
+            }
+        }
+        for (Iterator it = complete.iterator(); it.hasNext(); ) {
+            String string = String.valueOf(it.next());
+            if (!string.startsWith(args[args.length - 1].toLowerCase())) {
+                it.remove();
             }
         }
         Collections.sort(complete);
