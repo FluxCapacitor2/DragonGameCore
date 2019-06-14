@@ -1,6 +1,8 @@
 package me.fluxcapacitor.dragongamecore;
 
 import com.connorlinfoot.titleapi.TitleAPI;
+import me.fluxcapacitor.dragongamecore.partycommands.Party;
+import me.fluxcapacitor.dragongamecore.partycommands.PartyManager;
 import org.bukkit.GameMode;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -89,12 +91,21 @@ public class EventListeners implements Listener {
     @SuppressWarnings("unused")
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
+        //Remove the player from their teams/games
         for (GameMap map : wrapper.maps) {
             map.queue.queue.remove(player);
             map.queue.removePlayerFromTeams(player);
             map.queue.spectators.remove(player);
             wrapper.updatePlayerCounts();
             wrapper.cancelGamesIfUnderPlayerCount();
+        }
+        //Remove the player from their party
+        Party p = PartyManager.findParty(player);
+        if (p != null) {
+            p.removePlayer(player);
+            for (Player member : p.players) {
+                member.sendMessage(Main.colorize("&f" + player.getDisplayName() + " &chas left the game and was removed from the party."));
+            }
         }
     }
 
