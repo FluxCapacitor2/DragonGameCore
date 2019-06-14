@@ -72,15 +72,17 @@ public class Team {
     }
 
     @SuppressWarnings("deprecation")
-    public void removeFriendlyFire() {
-        if (Main.scoreboard.getTeam(this.getTeamName()) != null) {
-            Main.scoreboard.getTeam(this.getTeamName()).unregister();
+    public void removeFriendlyFire(DragonGame game) {
+        if (!game.isFFA()) {
+            if (Main.scoreboard.getTeam(this.getTeamName()) != null) {
+                Main.scoreboard.getTeam(this.getTeamName()).unregister();
+            }
+            this.team = Main.scoreboard.registerNewTeam(this.getTeamName());
+            for (Player p : this.getPlayers()) {
+                team.addPlayer(p);
+            }
+            team.setAllowFriendlyFire(false);
         }
-        this.team = Main.scoreboard.registerNewTeam(this.getTeamName());
-        for (Player p : this.getPlayers()) {
-            team.addPlayer(p);
-        }
-        team.setAllowFriendlyFire(false);
     }
 
     public Location getSpawnPoint() {
