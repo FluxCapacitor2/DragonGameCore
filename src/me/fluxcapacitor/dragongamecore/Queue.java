@@ -201,7 +201,7 @@ public class Queue {
         this.balanceTeams();
         //Turn off friendly fire
         for (Team t : teams) {
-            t.removeFriendlyFire();
+            t.removeFriendlyFire(game);
         }
         //Reset the players' invincibility
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rg flag __global__ invincible -w " + map.queue.getWorldName());
