@@ -3,6 +3,8 @@ package me.fluxcapacitor.dragongamecore.commands;
 import me.fluxcapacitor.dragongamecore.Debug;
 import me.fluxcapacitor.dragongamecore.DragonGame;
 import me.fluxcapacitor.dragongamecore.Main;
+import me.fluxcapacitor.dragongamecore.partycommands.Party;
+import me.fluxcapacitor.dragongamecore.partycommands.PartyManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -39,6 +41,10 @@ public class DebugCommand implements CommandExecutor {
                 }
             }
         } else {
+            Bukkit.getConsoleSender().sendMessage("&6PARTIES:");
+            for (Party party : PartyManager.parties) {
+                Bukkit.getConsoleSender().sendMessage("    " + party.toString());
+            }
             for (DragonGame game : Main.games) {
                 Bukkit.getConsoleSender().sendMessage("=============== [GAME DUMP: " + game.getName() + "] ===============");
                 game.getWrapper().dumpMaps();
