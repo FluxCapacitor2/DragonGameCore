@@ -1,7 +1,10 @@
 package me.fluxcapacitor.dragongamecore.commands;
 
 import com.connorlinfoot.titleapi.TitleAPI;
-import me.fluxcapacitor.dragongamecore.*;
+import me.fluxcapacitor.dragongamecore.DragonGame;
+import me.fluxcapacitor.dragongamecore.GameMap;
+import me.fluxcapacitor.dragongamecore.Main;
+import me.fluxcapacitor.dragongamecore.Wrapper;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -22,7 +25,7 @@ public class StopCommand implements CommandExecutor {
             for (GameMap map : game.getWrapper().maps) {
                 ArrayList<Player> allPlayers = map.queue.queue;
                 allPlayers.addAll(map.queue.spectators);
-                for (Team t : map.queue.getTeams()) allPlayers.addAll(t.getPlayers());
+                map.queue.getTeams().forEach(t -> allPlayers.addAll(t.getPlayers()));
 
                 for (Player player : allPlayers) {
                     TitleAPI.sendTitle(player, 20, 100, 20, Main.colorizeWithoutPrefix("&cCANCELLED"), Main.colorizeWithoutPrefix("&cYour game was stopped by a moderator."));
@@ -31,6 +34,8 @@ public class StopCommand implements CommandExecutor {
                     Wrapper.clearInventory(player.getInventory());
                 }
                 map.queue.resetVariables();
+                map.queue.resetIngame();
+                map.queue.resetQueue();
             }
         }
         sender.sendMessage(Main.colorize("&aAll current games were stopped and reset. Players, people in queue, and spectators were notified."));
