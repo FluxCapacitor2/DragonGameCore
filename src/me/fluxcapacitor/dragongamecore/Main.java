@@ -3,9 +3,9 @@ package me.fluxcapacitor.dragongamecore;
 import me.fluxcapacitor.dragongamecore.commands.*;
 import me.fluxcapacitor.dragongamecore.inventories.GUI;
 import me.fluxcapacitor.dragongamecore.inventories.GUIManager;
-import me.fluxcapacitor.dragongamecore.partycommands.Party;
-import me.fluxcapacitor.dragongamecore.partycommands.PartyCommand;
-import me.fluxcapacitor.dragongamecore.partycommands.PartyManager;
+import me.fluxcapacitor.dragongamecore.party.Party;
+import me.fluxcapacitor.dragongamecore.party.PartyCommand;
+import me.fluxcapacitor.dragongamecore.party.PartyManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -174,15 +174,13 @@ public class Main extends JavaPlugin {
                 complete.add("promote");
                 complete.add("leave");
                 complete.add("list");
-                complete.add("accept");
-                complete.add("deny");
+                complete.add("join");
                 complete.add("chat");
             } else if (args.length == 2) {
-                if (args[1].equalsIgnoreCase("invite") | args[1].equalsIgnoreCase("accept") |
-                        args[1].equalsIgnoreCase("deny")) {
+                if (args[0].equalsIgnoreCase("invite") | args[0].equalsIgnoreCase("join")) {
                     //Autocomplete players
                     Bukkit.getOnlinePlayers().forEach(p -> complete.add(p.getName()));
-                } else if (args[1].equalsIgnoreCase("kick") | args[1].equalsIgnoreCase("promote")) {
+                } else if (args[0].equalsIgnoreCase("kick") | args[0].equalsIgnoreCase("promote")) {
                     //Automplete party members
                     Party party = PartyManager.findParty(player);
                     if (party != null) {
@@ -193,7 +191,7 @@ public class Main extends JavaPlugin {
         }
         for (Iterator it = complete.iterator(); it.hasNext(); ) {
             String string = String.valueOf(it.next());
-            if (!string.startsWith(args[args.length - 1].toLowerCase())) {
+            if (!string.toLowerCase().startsWith(args[args.length - 1].toLowerCase())) {
                 it.remove();
             }
         }
