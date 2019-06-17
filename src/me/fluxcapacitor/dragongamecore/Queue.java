@@ -1,6 +1,8 @@
 package me.fluxcapacitor.dragongamecore;
 
 import com.connorlinfoot.titleapi.TitleAPI;
+import me.fluxcapacitor.dragongamecore.party.Party;
+import me.fluxcapacitor.dragongamecore.party.PartyManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -12,26 +14,115 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Objects;
 
 public class Queue {
+    /**
+     * The number of players required to start
+     */
     final int START_REQUIREMENT;
+    /**
+     * The maximum players allowed in the game.
+     */
     final int MAX_PLAYERS_PER_LOBBY;
+    /**
+     * The time it takes for the game to start after the timer starts.
+     * Typically is 30.
+     * Measured in seconds.
+     *
+     * @see CountdownTimer
+     */
     private final int COUNTDOWN_TIME;
+    /**
+     * The map that this Queue is assigned.
+     *
+     * @see GameMap
+     */
     private final GameMap map;
+    /**
+     * The game that this Queue is assigned.
+     *
+     * @see DragonGame
+     */
     private final DragonGame game;
+    /**
+     * The "lifecycle" class with game-specific
+     * methods that run at key points in the
+     * game.
+     *
+     * @see GameLifecycle
+     */
     private final GameLifecycle gameLifecycle;
+    /**
+     * The subtitle that all players see under the "GO" title.
+     * This is shown when the game starts.
+     */
     private final String gameStartSubtitle;
+    /**
+     * A list of all queued players.
+     */
     public ArrayList<Player> queue;
-    //public ArrayList<Player> ingame;
+    /**
+     * A list of all teams ingame.
+     */
     public ArrayList<Team> teams;
+    /**
+     * Shows if the timer has started.
+     * If the game has started, this is still
+     * <code>true</code>.
+     */
     @SuppressWarnings("WeakerAccess")
     public boolean timerStarted;
+    /**
+     * Reflects if the game has started.
+     * Resets in <code>resetVariables()</code>.
+     */
     @SuppressWarnings("WeakerAccess")
     public boolean gameStarted;
+    /**
+     * A list of all spectators.
+     */
     public ArrayList<Player> spectators;
+    /**
+     * The countdown timer used for starting the game.
+     *
+     * @see CountdownTimer
+     */
     CountdownTimer timer;
+    /**
+     * Reflects if the game is allowed to declare a winner.
+     * If this is <code>false</code>, there will never be
+     * a winner until it is set to true (which happens when
+     * the game starts).
+     */
     boolean canDeclareWinner;
+    /**
+     * Shows if the game is currently being played by a party in
+     * private mode.
+     */
+    boolean isInPrivate;
+    /**
+     * If <code>isInPrivate</code> is true, this will
+     * be the party that is privately playing.
+     *
+     * @see Party
+     */
+    Party privateParty;
 
+    /**
+     * Create a new Queue
+     *
+     * @param game             The game that this queue is running
+     * @param map              The map that the queue is being created for
+     * @param countdownTime    The time that it takes to start the game. (Typically 30 seconds)
+     * @param maxPlayers       The maximum players in the game
+     * @param startRequirement The number of players required to start a game. Must be at least 2.
+     * @see DragonGame
+     * @see GameMap
+     * @see Queue#COUNTDOWN_TIME
+     * @see Queue#MAX_PLAYERS_PER_LOBBY
+     * @see Queue#START_REQUIREMENT
+     */
     Queue(DragonGame game, GameMap map, int countdownTime, int maxPlayers, int startRequirement) {
         this.queue = new ArrayList<>();
         //this.ingame = new ArrayList<>();
@@ -48,9 +139,69 @@ public class Queue {
         else COUNTDOWN_TIME = countdownTime;
         START_REQUIREMENT = startRequirement;
         MAX_PLAYERS_PER_LOBBY = maxPlayers;
+        this.isInPrivate = false;
+        this.privateParty = null;
     }
 
+    /**
+     * Add a player to the queue for a game.
+     *
+     * @param player The player to add to the queue
+     */
     public void add(Player player) {
+
+        if (PartyManager.isInParty(player)) {
+            Debug.verbose(player.getName() + " IS in a party.");
+            if (!PartyManager.isLeader(player)) {
+                Debug.verbose("...They are not the leader.");
+                player.sendMessage(Main.colorize("&cYou must be the party leader to queue for a game!"));
+            } else {
+                Debug.verbose("Player that tried to join IS the leader. Joining...");
+                //They are the leader
+                //Add them and their whole team to the game (on the same team if it's a team game)
+                Party party = PartyManager.findParty(player);
+                assert party != null;
+                boolean isPriority = party.leader.hasPermission("arcade.priorityqueue");
+                boolean isPrivate = party.isPrivate;
+                if (isPrivate) {
+                    this.isInPrivate = true;
+                    this.privateParty = party;
+                }
+                for (Player p : party.players) {
+                    p.sendMessage(PartyManager.colorize("&aThe party leader has queued for &f" + game.getName() + "&a."));
+                    addInternal(p, isPriority, isPrivate);
+                    Debug.verbose("Adding " + p.getName() + " to the game of " + game.getName() + ".");
+                }
+                Debug.verbose("All players should have joined. Private: " + isPrivate + ", priority: " + isPriority + ".");
+                this.updateQueue();
+            }
+        } else {
+            Debug.verbose("Just adding " + player.getName() + " normally because they are not in a party.");
+            if (this.isInPrivate) {
+                player.sendMessage(Main.colorize("&cThis map is currently hosting a private game so you were added to the queue."));
+            }
+            addInternal(player);
+        }
+    }
+
+    /**
+     * Add a player to the Queue.
+     *
+     * @param player
+     */
+    private void addInternal(Player player) {
+        this.addInternal(player, player.hasPermission("arcade.priorityqueue"), false);
+    }
+
+    /**
+     * This is the main method for adding a player to a game.
+     * All overloaded methods called <code>addInternal</code> or <code>add</code>
+     * eventually call this method after handling parties and other complications.
+     *
+     * @param player     The player to add to the game
+     * @param isPriority If the player has permission for priority queue
+     */
+    private void addInternal(Player player, boolean isPriority) {
         //Make sure they aren't already queueing for something else
         for (DragonGame game1 : Main.games) {
             for (GameMap map : game1.getWrapper().maps) {
@@ -69,7 +220,7 @@ public class Queue {
             this.timer.run();
         } else {
             //There's already a game being played. They will just chill in the queue for now.
-            if (player.hasPermission("arcade.priorityqueue")) {
+            if (isPriority) {
                 //Put them in front of people without priority queue
                 boolean added = false;
                 for (int i = 0; i < this.queue.size(); i++) {
@@ -85,39 +236,182 @@ public class Queue {
                 //They don't have priority queue. Just put them at the back of the queue.
                 this.queue.add(player);
             }
-            player.sendMessage(Main.colorize("&aYou have queued for &f" + game.getName() + "&a on &f" + map.name + "&a. You are at position " +
-                    "&f" + (this.queue.indexOf(player) + 1) + "&a/&f" + this.queue.size() + "&a in the queue."));
-        }
-        if (this.queue.size() == START_REQUIREMENT && !this.gameStarted && !this.timerStarted) {
-            this.startTimer();
+            if (!PartyManager.isInParty(player))
+                player.sendMessage(Main.colorize("&aYou have queued for &f" + game.getName() + "&a on &f" + map.name + "&a. You are at position " +
+                        "&f" + (this.queue.indexOf(player) + 1) + "&a/&f" + this.queue.size() + "&a in the queue."));
         }
     }
 
+    /**
+     * Update the queue and start the timer if necessary.
+     */
+    private void updateQueue() {
+        Debug.verbose("Updating queue...");
+        int privatePartyIndex = getPrivatePartyIndex();
+        Debug.verbose("Private party index: " + privatePartyIndex);
+        if (privatePartyIndex == 0) {
+            //The private party is at the beginning of the line, let them in!
+            if (!this.gameStarted && !this.timerStarted) {
+                Debug.verbose("Starting timer because private party was first in queue...");
+                this.startTimer();
+            }
+        } else {
+            Debug.verbose("Non-private player count: " + getNonPrivatePlayerCount());
+            Debug.verbose("Game started: " + this.gameStarted + ", Timer started: " + this.timerStarted + ".");
+            if (getNonPrivatePlayerCount() >= START_REQUIREMENT && !this.gameStarted && !this.timerStarted) {
+                this.startTimer();
+            }
+        }
+    }
+
+    /**
+     * Get the count of players that are not in private parties.
+     *
+     * @return The count of players that are not in a private party.
+     */
+    private int getNonPrivatePlayerCount() {
+        int count = 0;
+        for (Player p : this.queue) {
+            Party party = PartyManager.findParty(p);
+            if ((party != null && !party.isPrivate) | (party == null)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Add a player to the queue
+     *
+     * @param player     The player to add to the queue
+     * @param isPriority If the player has priority queue
+     * @param isPrivate  If the player is joining in private
+     */
+    private void addInternal(Player player, boolean isPriority, boolean isPrivate) {
+        if (this.isInPrivate) {
+            if (isPrivate) {
+                if (this.privateParty.players.contains(player)) {
+                    //Continue into the game because they are in the party that "owns" this game.
+                    Party party = PartyManager.findParty(player);
+                    assert party != null;
+
+                    boolean queued = false;
+                    for (Team t : this.teams) {
+                        for (Player p : t.getPlayers()) {
+                            if (!party.players.contains(p)) {
+                                //Wait in queue for the next game on this map to open up
+                                this.queue.add(player);
+                                this.updateQueue();
+                                queued = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!queued) this.addInternal(player, isPriority);
+                }
+            } else {
+                //Deny access & put them in queue
+                this.queue.add(player);
+                this.updateQueue();
+            }
+        } else {
+            this.addInternal(player, isPriority);
+        }
+    }
+
+    /**
+     * Get the name of the world that the map is in.
+     *
+     * @return The world name
+     */
     String getWorldName() {
         return this.map.getBlocks().get(0).getWorldName();
     }
 
+    /**
+     * When the timer starts, this method is triggered. It resets the map and other related things.
+     */
     private void preGame() {
         //Reset the map
         this.map.reset();
         //Put the top 10 players in the queue into the game
-        for (int i = 0; i < MAX_PLAYERS_PER_LOBBY; i++) {
-            if (this.queue.size() >= 1) {
-                //Should be in the array bounds...
-                //Transfer them from the queue to in the game.
-                if (game.isFFA()) {
-                    this.addTeam(new Team(this.queue.get(0)));
+        int privatePartyIndex = getPrivatePartyIndex();
+        Party privateParty = null;
+        if (privatePartyIndex != -1) privateParty = PartyManager.findParty(this.queue.get(privatePartyIndex));
+
+        Debug.verbose("Private party index: " + privatePartyIndex);
+        Debug.verbose("Private party: " + privateParty);
+        if (privatePartyIndex == 0) {
+            Debug.verbose("Only allowing private party to play because they are first in queue");
+            //The private party is first in line, allow them into the game! (but not anyone else that isn't in the party)
+            for (Iterator<Player> it = this.queue.iterator(); it.hasNext(); ) {
+                Player p = it.next();
+                //Check if they are in the party
+                if (Objects.equals(PartyManager.findParty(p), privateParty)) {
+                    Debug.verbose("Allowing " + p.getName() + " into the game because they were in a private party");
+                    //Let them in!
+                    if (game.isFFA()) {
+                        this.addTeam(new Team(p));
+                    }
+                    pregamePerPlayer(game, map, p);
+                    it.remove();
                 }
-                pregamePerPlayer(game, map, this.queue.get(0));
-                this.queue.remove(0);
+            }
+        } else {
+            Debug.verbose("Just running normally because a private party is not first in the queue");
+            for (Iterator<Player> it = this.queue.iterator(); it.hasNext(); ) {
+                Player p = it.next();
+                Party party = PartyManager.findParty(p);
+                if (!Objects.equals(party, privateParty)) {
+                    if (game.isFFA()) this.addTeam(new Team(p));
+                    pregamePerPlayer(game, map, p);
+                    it.remove();
+                    Debug.verbose("Added " + p.getName() + " to the game.");
+                } else {
+                    Debug.verbose("Not adding " + p.getName() + " because they are part of a private party that is not first.");
+                }
             }
         }
         //Make everyone invincible
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rg flag __global__ invincible -w " + map.queue.getWorldName() + " allow");
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rg flag __global__ invincible -w " + getWorldName() + " allow");
         //Run game-specific pregame method.
         gameLifecycle.pregame(game, map);
     }
 
+    /**
+     * Get the index of a private party in the queue.
+     * If the returned value is 0, then a private party is first in the queue.
+     *
+     * @return The index of the first private party in the queue
+     */
+    private int getPrivatePartyIndex() {
+        int privatePartyIndex = -1;
+        for (int i = 0; i < this.queue.size(); i++) {
+            Player player = this.queue.get(i);
+            Party party = PartyManager.findParty(player);
+
+            if (party != null) {
+                if (party.isPrivate) {
+                    //They're in a private party
+                    //noinspection ConstantConditions
+                    if (privatePartyIndex == -1) {
+                        privatePartyIndex = i;
+                        privateParty = party;
+                        break;
+                    }
+                }
+            }
+        }
+        return privatePartyIndex;
+    }
+
+    /**
+     * This is like the pregame method, but it is called per-player.
+     *
+     * @param game   The game that the player is playing
+     * @param map    The map that the player is playing on
+     * @param player The player to use within the method
+     */
     private void pregamePerPlayer(DragonGame game, GameMap map, Player player) {
         Debug.verbose("Running pregame per-player for " + player.getName());
         //Is this game free-for-all or are there already-defined teams?
@@ -125,7 +419,7 @@ public class Queue {
             //If it's FFA, make a team under the player's name
             Team newTeam = new Team(player);
             //Make sure the "new" team is not a duplicate
-            if (!newTeam.doesMatchFromList(this.teams)) {
+            if (!newTeam.matches(this.teams)) {
                 //It's not a duplicate. Go ahead & add it!
                 Debug.info("Creating new team for FFA player: " + newTeam.getTeamName());
                 this.teams.add(newTeam);
@@ -185,10 +479,21 @@ public class Queue {
         gameLifecycle.pregamePerPlayer(game, map, player);
     }
 
+    /**
+     * Get the team-specific spawn point of the map
+     *
+     * @param player The player to use to find a spawn point
+     * @return A <code>Location</code> that is a player's spawn point (which is team specific)
+     */
     private Location getSpawnPoint(Player player) {
         return this.map.getSpawnPoint(player);
     }
 
+    /**
+     * Convert this class to a String
+     *
+     * @return A human-readable String that represents this class
+     */
     @Override
     public String toString() {
         return "\n       Ingame: " + this.teams.toString() +
@@ -196,6 +501,11 @@ public class Queue {
                 "\n       Queued: " + this.queue.toString();
     }
 
+    /**
+     * Start the game.
+     * This method balances teams, removes friendly fire, turns off
+     * invincibility, etc.
+     */
     private void startGame() {
         //Balance teams
         this.balanceTeams();
@@ -222,6 +532,12 @@ public class Queue {
         this.canDeclareWinner = true;
     }
 
+    /**
+     * This method balances teams.
+     * If one team (x) has 2 more players
+     * than another (y), then <code>y</code> will take one
+     * player from <code>x</code>.
+     */
     private void balanceTeams() {
         for (Team x : this.teams) {
             for (Team y : this.teams) {
@@ -239,19 +555,28 @@ public class Queue {
         }
     }
 
-    private void countDown(CountdownTimer t) {
-        int secondsLeft = t.getSecondsLeft();
-        gameLifecycle.everySecond(game, map, t);
+    /**
+     * This method is called every second (or every time the timer <code>run</code>s)
+     *
+     * @param timer The timer used for determining how many seconds are left.
+     */
+    private void countDown(CountdownTimer timer) {
+        int secondsLeft = timer.getSecondsLeft();
+        gameLifecycle.everySecond(game, map, timer);
         if (secondsLeft % 10 == 0 || secondsLeft <= 5) {
             for (Team team : this.teams) {
                 for (Player p : team.getPlayers()) {
                     TitleAPI.sendTitle(p, 20, 20, 20, Main.colorizeWithoutPrefix("&f" + secondsLeft + "&a seconds!"), Main.colorizeWithoutPrefix("&aType &f/leave&a to leave the game."));
-                    gameLifecycle.everySecondPerPlayer(game, map, t, p);
+                    gameLifecycle.everySecondPerPlayer(game, map, timer, p);
                 }
             }
         }
     }
 
+    /**
+     * Setup the next game.
+     * If there are enough people in queue, then start the next game!
+     */
     void setupNextGame() {
         if (this.teams.size() == 0) {
             //The game is over & the winner was removed from the game as well.
@@ -266,6 +591,12 @@ public class Queue {
         }
     }
 
+    /**
+     * Start the timer.
+     * This also sets <code>timerStarted</code> to <code>true</code>
+     * and calls the game-specific <code>onTimerStart</code> and <code>onTimerStartPerPlayer</code>
+     * methods.
+     */
     private void startTimer() {
         //Code adapted from a forum post by @ExpDev on SpigotMC.org
         this.timer = this.newTimer();
@@ -279,44 +610,88 @@ public class Queue {
         }
     }
 
+    /**
+     * Create a new timer
+     *
+     * @return A new timer object to use in starting the game
+     */
     private CountdownTimer newTimer() {
         return new CountdownTimer(Main.instance, COUNTDOWN_TIME, this::preGame, this::startGame, this::countDown);
     }
 
-    void resetVariables(boolean preserveQueue) {
+    /**
+     * Reset most variables associated with this Queue.
+     * This includes <code>gameStarted</code>,
+     * <code>timerStarted</code>, and <code>timer</code>.
+     */
+    public void resetVariables() {
         for (Team t : teams) {
             if (t.team != null) t.team.unregister();
         }
         this.canDeclareWinner = false;
         this.timerStarted = false;
         this.gameStarted = false;
-        if (!preserveQueue) {
-            this.queue = new ArrayList<>();
-            this.teams = new ArrayList<>();
-            this.spectators = new ArrayList<>();
-        }
         if (this.timer != null) this.timer.cancelTimer();
         this.timer = this.newTimer();
         this.map.reset();
         this.removeAllTeams();
+        this.isInPrivate = false;
+        this.privateParty = null;
     }
 
-    public void resetVariables() {
-        resetVariables(false);
+    /**
+     * Reset all ingame players and spectators.
+     * Mostly used in conjunction with <code>resetVariables()</code>
+     *
+     * @see Queue#resetVariables()
+     */
+    public void resetIngame() {
+        this.teams = new ArrayList<>();
+        this.spectators = new ArrayList<>();
     }
 
+    /**
+     * Reset all queued players.
+     * Mostly used in conjunction with <code>resetVariables()</code>
+     *
+     * @see Queue#resetVariables()
+     */
+    public void resetQueue() {
+        this.queue = new ArrayList<>();
+    }
+
+    /**
+     * Get all teams in the game
+     *
+     * @return All teams in the game
+     */
     public ArrayList<Team> getTeams() {
         return teams;
     }
 
+    /**
+     * Add a team to the game
+     *
+     * @param team The team to add
+     */
     private void addTeam(Team team) {
         this.teams.add(team);
     }
 
+    /**
+     * Reset all teams
+     *
+     * @see Queue#resetVariables()
+     */
     private void removeAllTeams() {
         this.teams = new ArrayList<>();
     }
 
+    /**
+     * Get the number of teams with players on them
+     *
+     * @return The count of all teams with at least 1 player on them
+     */
     public int getTeamCountWithPlayers() {
         int count = 0;
         for (Team t : this.teams) {
@@ -327,6 +702,11 @@ public class Queue {
         return count;
     }
 
+    /**
+     * Get the number of players in the game.
+     *
+     * @return Total ingame player count.
+     */
     public int getPlayerCount() {
         int count = 0;
         for (Team t : this.teams) {
@@ -335,7 +715,13 @@ public class Queue {
         return count;
     }
 
-    @SuppressWarnings("unused")
+    /**
+     * Declare a winner
+     *
+     * @param player The winner
+     * @deprecated
+     */
+    @Deprecated
     public void declareWinner(Player player) {
         if (canDeclareWinner) {
             teams.forEach(o -> map.queue.spectators.addAll(o.getPlayers()));
@@ -358,6 +744,11 @@ public class Queue {
         setupNextGame();
     }
 
+    /**
+     * Remove a player from ALL of their team(s).
+     *
+     * @param player The player to remove from their team(s).
+     */
     public void removePlayerFromTeams(Player player) {
         for (Iterator it = teams.iterator(); it.hasNext(); ) {
             Team t = (Team) it.next();
