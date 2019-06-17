@@ -1,6 +1,7 @@
 package me.fluxcapacitor.dragongamecore.party;
 
 import me.fluxcapacitor.dragongamecore.Debug;
+import me.fluxcapacitor.dragongamecore.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -195,6 +196,19 @@ public class PartyCommand implements CommandExecutor {
                     } else {
                         sender.sendMessage(PartyManager.colorize("&cYou are not in a party!"));
                     }
+                } else {
+                    sender.sendMessage(Main.colorize("&aParty Commands:\n" +
+                            "&e/party help &7- &bShow this help message.\n" +
+                            "&e/party invite <player> &7- &bInvite &e<player>&b to your party.\n" +
+                            "&e/party kick <player> &7- &bKick &e<player>&b from your party.\n" +
+                            "&e/party disband &7- &bDisband your party and kick all members.\n" +
+                            "&e/party promote <player> &7- &bMake &e<player>&b the party leader.\n" +
+                            "&e/party leave &7- &bLeave the party.\n" +
+                            "&e/party list &7- &bList everyone in the party.\n" +
+                            "&e/party chat <message> &7- &bSend &e<message>&b to all party members.\n" +
+                            "&e/party public &7- &bAllow everyone to join the party. &f(&aPREMIUM&f ONLY)\n" +
+                            "&e/party public &7- &bToggle private games &f(&aPREMIUM&f ONLY)"));
+                    return true;
                 }
             }
         } else return false;
