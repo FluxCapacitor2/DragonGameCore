@@ -1,8 +1,8 @@
 package me.fluxcapacitor.dragongamecore;
 
 import com.connorlinfoot.titleapi.TitleAPI;
-import me.fluxcapacitor.dragongamecore.partycommands.Party;
-import me.fluxcapacitor.dragongamecore.partycommands.PartyManager;
+import me.fluxcapacitor.dragongamecore.party.Party;
+import me.fluxcapacitor.dragongamecore.party.PartyManager;
 import org.bukkit.GameMode;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -103,9 +103,7 @@ public class EventListeners implements Listener {
         Party p = PartyManager.findParty(player);
         if (p != null) {
             p.removePlayer(player);
-            for (Player member : p.players) {
-                member.sendMessage(Main.colorize("&f" + player.getDisplayName() + " &chas left the game and was removed from the party."));
-            }
+            p.sendMessage(Main.colorize("&f" + player.getDisplayName() + " &chas left the game and was removed from the party."));
         }
     }
 
