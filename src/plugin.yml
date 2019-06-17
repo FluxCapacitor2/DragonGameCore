@@ -1,7 +1,7 @@
 name: DragonGameCore
 description: An API for building BlueDragon's minigames.
 main: me.fluxcapacitor.dragongamecore.Main
-version: "2.1-BETA"
+version: "2.1"
 commands:
   join:
     description: Join a minigame.
