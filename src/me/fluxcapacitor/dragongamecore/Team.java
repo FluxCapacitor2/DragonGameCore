@@ -62,7 +62,7 @@ public class Team {
         return this.getClass().getCanonicalName() + "[name='" + this.getTeamName() + "',players='" + this.getPlayers().toString() + "']";
     }
 
-    boolean doesMatchFromList(ArrayList<Team> teams) {
+    boolean matches(ArrayList<Team> teams) {
         for (Team t : teams) {
             if (t.getTeamName().equals(this.getTeamName())) {
                 return true;
