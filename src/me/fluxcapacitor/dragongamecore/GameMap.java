@@ -87,7 +87,7 @@ public class GameMap {
 
         //This is a spawn point of the map! All players will teleport to here or another spawnpoint
         // when the pregame starts.
-        if (game.isFFA() & (Objects.equals(material, Material.MONSTER_EGG) | material.equals(Material.MONSTER_EGGS))) {
+        if (game.isFFA() & (Objects.equals(material, Material.MONSTER_EGG) | Objects.equals(material, Material.MONSTER_EGGS))) {
             this.spawnPoints.add(coordinate);
         }
     }
