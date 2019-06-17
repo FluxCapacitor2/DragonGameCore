@@ -245,7 +245,7 @@ public class Wrapper {
             }
         }
         for (Player winner : winners) {
-            Debug.verbose("Sending winning title to " + winner.getName());
+            Debug.verbose("Sending winning title & clearing inventory for " + winner.getName());
             Wrapper.clearInventory(winner.getInventory());
             TitleAPI.sendTitle(winner, 20, 100, 20,
                     Main.colorizeWithoutPrefix("&6&lWINNER"),
@@ -254,6 +254,7 @@ public class Wrapper {
         }
         //If there are enough people in queue, reset & start the next game.
         map.queue.resetVariables();
+        map.queue.resetIngame();
         map.queue.setupNextGame();
         //Turn off declaring a winner until the next game to prevent "spamming" of this method.
         map.queue.canDeclareWinner = false;
@@ -281,7 +282,8 @@ public class Wrapper {
                     }
                 }
                 ArrayList<Player> queue = map.queue.queue;
-                map.queue.resetVariables(false);
+                map.queue.resetVariables();
+                map.queue.resetIngame();
                 map.queue.queue = queue;
                 map.queue.setupNextGame();
             }
