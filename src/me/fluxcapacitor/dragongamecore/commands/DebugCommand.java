@@ -3,8 +3,8 @@ package me.fluxcapacitor.dragongamecore.commands;
 import me.fluxcapacitor.dragongamecore.Debug;
 import me.fluxcapacitor.dragongamecore.DragonGame;
 import me.fluxcapacitor.dragongamecore.Main;
-import me.fluxcapacitor.dragongamecore.partycommands.Party;
-import me.fluxcapacitor.dragongamecore.partycommands.PartyManager;
+import me.fluxcapacitor.dragongamecore.party.Party;
+import me.fluxcapacitor.dragongamecore.party.PartyManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -41,7 +41,7 @@ public class DebugCommand implements CommandExecutor {
                 }
             }
         } else {
-            Bukkit.getConsoleSender().sendMessage("&6PARTIES:");
+            Bukkit.getConsoleSender().sendMessage("PARTIES:");
             for (Party party : PartyManager.parties) {
                 Bukkit.getConsoleSender().sendMessage("    " + party.toString());
             }
