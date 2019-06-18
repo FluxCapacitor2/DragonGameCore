@@ -1,7 +1,15 @@
 # DragonGameCore
 The core plugin for BlueDragon minigames.
+## Requirements
+To use this plugin, some other plugins may be required.
+
+These plugins are REQUIRED for the plugin to run:
+ - `DebugAPI` by skater77i ([GitHub](https://github.com/skater77i/BlueDragonDebug/releases))
+ 
+These plugins add extra features to the plugin:
+ - `PlaceholderAPI` by clip ([SpigotMC](https://www.spigotmc.org/resources/placeholderapi.6245/))
 ## Commands
-See [plugin.yml](../blob/master/src/plugin.yml) for more information.
+See [plugin.yml](/src/plugin.yml) for more information.
 - `/join`
 - `/leave`
 - `/joingui <game>`
