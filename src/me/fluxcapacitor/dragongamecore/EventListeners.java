@@ -112,8 +112,10 @@ public class EventListeners implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         for (GameMap map : wrapper.maps) {
             if (wrapper.isIngame(event.getPlayer(), map) && map.queue.timerStarted && !map.queue.gameStarted) {
-                //The player's game hasn't started, so cancel the event
-                event.setCancelled(true);
+                if (!event.getPlayer().hasPermission("arcade.bypass.block.break")) {
+                    //The player's game hasn't started, so cancel the event
+                    event.setCancelled(true);
+                }
             }
         }
     }
@@ -123,8 +125,10 @@ public class EventListeners implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         for (GameMap map : wrapper.maps) {
             if (wrapper.isIngame(event.getPlayer(), map) && map.queue.timerStarted && !map.queue.gameStarted) {
-                //The player's game hasn't started, so cancel the event
-                event.setCancelled(true);
+                if (!event.getPlayer().hasPermission("arcade.bypass.block.place")) {
+                    //The player's game hasn't started, so cancel the event
+                    event.setCancelled(true);
+                }
             }
         }
     }
@@ -133,19 +137,23 @@ public class EventListeners implements Listener {
     @SuppressWarnings("unused")
     public void onInventoryClick(InventoryClickEvent event) {
         if (wrapper.isIngame((Player) event.getWhoClicked())) {
-            event.setCancelled(true);
+            if (!event.getWhoClicked().hasPermission("arcade.bypass.inventory")) {
+                event.setCancelled(true);
+            }
         }
     }
 
     @EventHandler
     @SuppressWarnings("unused")
     public void onPlayerDeath(PlayerDeathEvent event) {
+        Debug.verbose(event.getEntity().getName() + " has died.");
         if (wrapper.isIngame(event.getEntity())) event.getDrops().clear();
     }
 
     @EventHandler
     @SuppressWarnings("unused")
     public void onPlayerJoin(PlayerJoinEvent event) {
+        Debug.verbose(event.getPlayer().getName() + " has joined the server.");
         event.getPlayer().setMaxHealth(20.0D);
     }
 
