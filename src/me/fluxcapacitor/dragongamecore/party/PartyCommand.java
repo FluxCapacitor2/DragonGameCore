@@ -211,7 +211,7 @@ public class PartyCommand implements CommandExecutor {
                             "&e/party list &7- &bList everyone in the party.\n" +
                             "&e/party chat <message> &7- &bSend &e<message>&b to all party members.\n" +
                             "&e/party public &7- &bAllow everyone to join the party. &f(&aPREMIUM&f ONLY)\n" +
-                            "&e/party public &7- &bToggle private games &f(&aPREMIUM&f ONLY)"));
+                            "&e/party private &7- &bToggle private games &f(&aPREMIUM&f ONLY)"));
                     return true;
                 }
             }
