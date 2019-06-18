@@ -1,32 +1,25 @@
 package me.fluxcapacitor.dragongamecore;
 
-import org.bukkit.command.CommandSender;
+import me.skater77i.bluedragon.debug.DebugAPI;
 
-import java.util.ArrayList;
-
+/**
+ * A simple class for debugging that relies on skater77i's DebugAPI
+ */
 public class Debug {
 
-    public static final ArrayList<CommandSender> subscribed = new ArrayList<>();
-
     public static void verbose(String string) {
-        sendToSubscribed("&d&lVERBOSE&r " + string);
+        DebugAPI.log("all", string, 0);
     }
 
     public static void info(String string) {
-        sendToSubscribed("&b&lINFO&r " + string);
+        DebugAPI.log("all", string, 1);
     }
 
     public static void warn(String string) {
-        sendToSubscribed("&e&lWARNING&r " + string);
+        DebugAPI.log("all", string, 2);
     }
 
     public static void error(String string) {
-        sendToSubscribed("&4&lERROR&r " + string);
-    }
-
-    private static void sendToSubscribed(String message) {
-        for (CommandSender sender : subscribed) {
-            sender.sendMessage(Main.colorize(message));
-        }
+        DebugAPI.log("all", string, 3);
     }
 }
