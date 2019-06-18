@@ -22,6 +22,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
+/**
+ * Most event listeners in this plugin are here.
+ *
+ * @author FluxCapacitor
+ */
 public class EventListeners implements Listener {
 
     private final DragonGame game;
@@ -182,7 +187,7 @@ public class EventListeners implements Listener {
     public void onPlayerChat(PlayerCommandPreprocessEvent event) {
         if (!event.isCancelled()) {
             Player player = event.getPlayer();
-            if (!player.hasPermission("arcade.commandsingame") && wrapper.isIngame(player)) {
+            if (!player.hasPermission("arcade.bypass.commands") && wrapper.isIngame(player)) {
                 String message = event.getMessage();
                 if (!message.startsWith("/leave") && !message.startsWith("/dragongamecore:leave")) {
                     player.sendMessage(Main.colorize("&cOnly &f/leave&c is allowed here!"));
