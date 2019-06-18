@@ -26,10 +26,6 @@ import java.util.Random;
 public class Wrapper {
     public ArrayList<GameMap> maps = new ArrayList<>();
 
-    public Wrapper() {
-        super();
-    }
-
     public static DragonGame findGame(String query) {
         for (DragonGame game : Main.games) {
             if (game.getName().equalsIgnoreCase(query)) {
