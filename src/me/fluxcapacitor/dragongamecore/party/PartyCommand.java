@@ -178,7 +178,11 @@ public class PartyCommand implements CommandExecutor {
                                 sender.sendMessage(PartyManager.colorize("&cYou must be the party leader to use this command!"));
                             }
                         } else {
-                            sender.sendMessage(PartyManager.colorize("&cYou are not in a party!"));
+                            party = new Party(pSender);
+                            party.isPublic = true;
+                            parties.add(party);
+                            sender.sendMessage(PartyManager.colorize("&aYou have created a public party! People " +
+                                    "can join by typing &f/party join " + pSender.getName() + "&a."));
                         }
                     }
                 } else if (args[0].equalsIgnoreCase("private")) {
