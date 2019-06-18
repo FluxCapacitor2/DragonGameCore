@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * The main class for a minigame.
+ * Each minigame instantiates this class to add basic features.
+ */
 public class DragonGame {
     private final Wrapper wrapper;
 

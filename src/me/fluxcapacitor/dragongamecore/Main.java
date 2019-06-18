@@ -18,6 +18,11 @@ import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.*;
 
+/**
+ * The main class of DragonGameCore.
+ *
+ * @author FluxCapacitor
+ */
 public class Main extends JavaPlugin {
     public static final ArrayList<DragonGame> games = new ArrayList<>();
     private static final String PREFIX = "&3Arcade &8>> &b";

@@ -14,6 +14,15 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Random;
 
+/**
+ * A class for many random methods that are somewhat associated with games or maps.
+ *
+ * @author FluxCapacitor
+ * @see Team
+ * @see Queue
+ * @see GameMap
+ * @see DragonGame
+ */
 public class Wrapper {
     public ArrayList<GameMap> maps = new ArrayList<>();
 

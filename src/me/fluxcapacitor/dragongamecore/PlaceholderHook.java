@@ -3,6 +3,12 @@ package me.fluxcapacitor.dragongamecore;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 
+/**
+ * The class that implements PlaceholderAPI integration.
+ *
+ * @author FluxCapacitor
+ * @see me.clip.placeholderapi.expansion.PlaceholderExpansion
+ */
 class PlaceholderHook extends PlaceholderExpansion {
 
     private final DragonGame game;

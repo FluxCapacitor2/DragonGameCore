@@ -3,6 +3,9 @@ package me.fluxcapacitor.dragongamecore;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
+/**
+ * A simple coordinate class for representing locations.
+ */
 public class Coordinate {
     private final int z;
     private final int x;

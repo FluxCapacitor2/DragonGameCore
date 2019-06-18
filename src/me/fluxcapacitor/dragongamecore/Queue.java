@@ -16,6 +16,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Objects;
 
+/**
+ * A queue for a game, which is map-specific.
+ *
+ * @author FluxCapacitor
+ * @see GameMap
+ * @see DragonGame
+ */
 public class Queue {
     /**
      * The number of players required to start
@@ -187,7 +194,7 @@ public class Queue {
     /**
      * Add a player to the Queue.
      *
-     * @param player
+     * @param player The player to add to the queue.
      */
     private void addInternal(Player player) {
         this.addInternal(player, player.hasPermission("arcade.priorityqueue"), false);

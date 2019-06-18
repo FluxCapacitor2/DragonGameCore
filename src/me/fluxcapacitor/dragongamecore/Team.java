@@ -6,6 +6,13 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 
+/**
+ * A team, which is map-specific.
+ *
+ * @author FluxCapacitor
+ * @see GameMap
+ * @see DragonGame
+ */
 public class Team {
 
     public org.bukkit.scoreboard.Team team;

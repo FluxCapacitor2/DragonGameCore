@@ -6,12 +6,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.function.Consumer;
 
 /**
- * Class created by
- *
+ * The timer used for starting games.
+ * Source originated from ExpDev on the SpigotMC forums.
  * @author ExpDev
- * and modified by
  * @author FluxCapacitor
- * to suit the needs of BlueDragon.
  */
 @SuppressWarnings("WeakerAccess")
 public class CountdownTimer implements Runnable {

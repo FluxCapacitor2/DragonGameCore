@@ -2,6 +2,13 @@ package me.fluxcapacitor.dragongamecore;
 
 import org.bukkit.Material;
 
+/**
+ * A block which is part of a GameMap.
+ *
+ * @author FluxCapacitor
+ * @see GameMap
+ * @see DragonGame
+ */
 public class GameBlock {
     private final Coordinate coordinate;
     private final String block;
@@ -23,9 +30,10 @@ public class GameBlock {
     }
 
     /**
-     * THE STRING REPRESENTATION OF A BLOCK
+     * Get the String representation of the block
      *
      * @see GameMap#addBlock(String)
+     * @return The string representation of this GameBlock
      */
     @SuppressWarnings("deprecation")
     public String toStringRepresentation() {

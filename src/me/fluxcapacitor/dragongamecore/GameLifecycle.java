@@ -4,6 +4,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
+/**
+ * The "lifecycle" for the game. Contains many methods that are called in their corresponding situations.
+ *
+ * @author FluxCapacitor
+ */
 @SuppressWarnings("WeakerAccess")
 public abstract class GameLifecycle {
 

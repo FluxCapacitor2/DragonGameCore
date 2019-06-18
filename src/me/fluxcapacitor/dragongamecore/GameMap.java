@@ -10,6 +10,13 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Random;
 
+/**
+ * A map that can be resetted and has a Queue.
+ *
+ * @author FluxCapacitor
+ * @see Queue
+ * @see DragonGame
+ */
 public class GameMap {
     public final String name;
     public final Queue queue;
