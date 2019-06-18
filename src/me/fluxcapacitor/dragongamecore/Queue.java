@@ -135,7 +135,7 @@ public class Queue {
         this.game = game;
         this.gameLifecycle = game.getGameLifecycle();
         this.gameStartSubtitle = game.getStartSubtitle();
-        if (Main.isBeta()) COUNTDOWN_TIME = 10;
+        if (Main.isBeta()) COUNTDOWN_TIME = 15;
         else COUNTDOWN_TIME = countdownTime;
         START_REQUIREMENT = startRequirement;
         MAX_PLAYERS_PER_LOBBY = maxPlayers;
