@@ -45,7 +45,6 @@ public class Main extends JavaPlugin {
         this.guiManager = new GUIManager();
         Bukkit.getPluginManager().registerEvents(this.guiManager, this);
 
-        if (isBeta()) Debug.subscribed.add(Bukkit.getConsoleSender());
         //Normal commands
         this.getCommand("joingui").setExecutor(new JoinGUICommand());
         this.getCommand("maps").setExecutor(new ListMapsCommand());
