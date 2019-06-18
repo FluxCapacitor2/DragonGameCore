@@ -166,35 +166,39 @@ public class PartyCommand implements CommandExecutor {
                         sender.sendMessage(PartyManager.colorize("&cYou must specify a player."));
                     }
                 } else if (args[0].equalsIgnoreCase("public")) {
-                    Party party = PartyManager.findParty(pSender);
-                    if (party != null) {
-                        if (pSender.equals(party.leader)) {
-                            party.isPublic = true;
-                            for (Player p : party.players) {
-                                p.sendMessage(PartyManager.colorize("&aThe party leader has made the party public! Anyone can join using &7/party join " + party.leader.getName() + "&a."));
+                    if (pSender.hasPermission("arcade.party.public")) {
+                        Party party = PartyManager.findParty(pSender);
+                        if (party != null) {
+                            if (pSender.equals(party.leader)) {
+                                party.isPublic = true;
+                                for (Player p : party.players) {
+                                    p.sendMessage(PartyManager.colorize("&aThe party leader has made the party public! Anyone can join using &7/party join " + party.leader.getName() + "&a."));
+                                }
+                            } else {
+                                sender.sendMessage(PartyManager.colorize("&cYou must be the party leader to use this command!"));
                             }
                         } else {
-                            sender.sendMessage(PartyManager.colorize("&cYou must be the party leader to use this command!"));
+                            sender.sendMessage(PartyManager.colorize("&cYou are not in a party!"));
                         }
-                    } else {
-                        sender.sendMessage(PartyManager.colorize("&cYou are not in a party!"));
                     }
                 } else if (args[0].equalsIgnoreCase("private")) {
-                    Party party = PartyManager.findParty(pSender);
-                    if (party != null) {
-                        if (pSender.equals(party.leader)) {
-                            party.isPrivate = !party.isPrivate;
-                            for (Player p : party.players) {
-                                if (party.isPrivate) p.sendMessage(PartyManager.colorize("&aThe party leader has " +
-                                        "turned on &fPrivate Games&a!"));
-                                else p.sendMessage(PartyManager.colorize("&aThe party leader has " +
-                                        "turned off &fPrivate Games&a."));
+                    if (pSender.hasPermission("arcade.party.private")) {
+                        Party party = PartyManager.findParty(pSender);
+                        if (party != null) {
+                            if (pSender.equals(party.leader)) {
+                                party.isPrivate = !party.isPrivate;
+                                for (Player p : party.players) {
+                                    if (party.isPrivate) p.sendMessage(PartyManager.colorize("&aThe party leader has " +
+                                            "turned on &fPrivate Games&a!"));
+                                    else p.sendMessage(PartyManager.colorize("&aThe party leader has " +
+                                            "turned off &fPrivate Games&a."));
+                                }
+                            } else {
+                                sender.sendMessage(PartyManager.colorize("&cYou must be the party leader to use this command!"));
                             }
                         } else {
-                            sender.sendMessage(PartyManager.colorize("&cYou must be the party leader to use this command!"));
+                            sender.sendMessage(PartyManager.colorize("&cYou are not in a party!"));
                         }
-                    } else {
-                        sender.sendMessage(PartyManager.colorize("&cYou are not in a party!"));
                     }
                 } else {
                     sender.sendMessage(Main.colorize("&aParty Commands:\n" +
