@@ -210,7 +210,8 @@ public class Wrapper {
         }
     }
 
-    private void declareWinner(GameMap map, Team t) {
+    @SuppressWarnings("WeakerAccess")
+    public void declareWinner(GameMap map, Team t) {
         Debug.info("The team " + t.getTeamName() + " has won the game of " + map.getGame().getName() + " on " + map.name + ".");
         Debug.verbose("The players on " + t.getTeamName() + " include: " + t.getPlayers().toString());
         ArrayList<Player> winners = new ArrayList<>();
