@@ -81,6 +81,7 @@ public class Team {
     @SuppressWarnings("deprecation")
     public void removeFriendlyFire(DragonGame game) {
         if (!game.isFFA()) {
+            Debug.verbose("Removing friendly fire for team " + this);
             if (Main.scoreboard.getTeam(this.getTeamName()) != null) {
                 Main.scoreboard.getTeam(this.getTeamName()).unregister();
             }
