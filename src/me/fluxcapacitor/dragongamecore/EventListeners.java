@@ -110,7 +110,7 @@ public class EventListeners implements Listener {
         Party p = PartyManager.findParty(player);
         if (p != null) {
             p.removePlayer(player);
-            p.sendMessage(Main.colorize("&f" + player.getDisplayName() + " &chas left the game and was removed from the party."));
+            p.sendMessage("&f" + player.getDisplayName() + " &chas left the game and was removed from the party.");
         }
     }
 
