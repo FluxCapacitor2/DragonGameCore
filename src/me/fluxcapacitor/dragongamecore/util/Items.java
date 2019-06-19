@@ -25,6 +25,7 @@ public class Items {
         return item;
     }
 
+    @SuppressWarnings("unused")
     public static ItemStack setBannerColor(ItemStack banner, DyeColor color) {
         BannerMeta meta = (BannerMeta) banner.getItemMeta();
         meta.setBaseColor(color);
