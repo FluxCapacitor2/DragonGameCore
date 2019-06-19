@@ -20,6 +20,8 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 /**
@@ -173,11 +175,23 @@ public class EventListeners implements Listener {
     @SuppressWarnings("unused")
     public void onPlayerDamage(EntityDamageEvent event) {
         EntityDamageEvent.DamageCause cause = event.getCause();
-        if (event.getEntityType().equals(EntityType.PLAYER) && !cause.equals(EntityDamageEvent.DamageCause.LAVA) && !cause.equals(EntityDamageEvent.DamageCause.VOID)) {
+        if (event.getEntityType().equals(EntityType.PLAYER)) {
             Player player = (Player) event.getEntity();
-            DragonGame game = Wrapper.findGame(player);
-            if (game != null && game.isDisableDamage()) {
-                event.setCancelled(true);
+            if (!cause.equals(EntityDamageEvent.DamageCause.LAVA) && !cause.equals(EntityDamageEvent.DamageCause.VOID) && !cause.equals(EntityDamageEvent.DamageCause.MAGIC)) {
+                DragonGame game = Wrapper.findGame(player);
+                if (game != null && game.isDisableDamage()) {
+                    Debug.verbose("Cancelling damage to " + player.getName() + " because it is disabled in " + game.getName() + ".");
+                    event.setCancelled(true);
+                }
+            } else if (cause.equals(EntityDamageEvent.DamageCause.VOID)) {
+                DragonGame game = Wrapper.findGame(player);
+                if (game != null && game.isFatalVoidDamage()) {
+                    //This void damage is fatal! Kill them.
+                    PotionEffectType type;
+                    PotionEffect effect = new PotionEffect(PotionEffectType.HARM, 30, 200);
+                    player.addPotionEffect(effect);
+                    Debug.verbose(player.getName() + " has fell into the void, which is fatal in " + game.getName() + ".");
+                }
             }
         }
     }

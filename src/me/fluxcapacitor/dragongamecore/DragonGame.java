@@ -30,6 +30,7 @@ public class DragonGame {
     private boolean spectating = true;
     private boolean ignoreAir = false;
     private boolean disableDamage = false;
+    private boolean fatalVoidDamage = true;
     private boolean FFA = true;
 
     private int countdownTime;
@@ -224,5 +225,13 @@ public class DragonGame {
 
     public ArrayList<Team> getTeams() {
         return this.teams;
+    }
+
+    public boolean isFatalVoidDamage() {
+        return fatalVoidDamage;
+    }
+
+    public void setFatalVoidDamage(boolean fatalVoidDamage) {
+        this.fatalVoidDamage = fatalVoidDamage;
     }
 }
