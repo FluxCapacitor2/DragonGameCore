@@ -56,6 +56,16 @@ public class Wrapper {
         return null;
     }
 
+    public static void spectate(GameMap map, Player player) {
+        map.queue.spectators.add(player);
+        Debug.info(player.getName() + " is now spectating. Showing title & setting game mode & teleporting...");
+        player.setGameMode(GameMode.SPECTATOR);
+        TitleAPI.sendTitle(player, 20, 80, 20,
+                Main.colorizeWithoutPrefix("&aYou are now spectating"),
+                Main.colorizeWithoutPrefix("&aTo leave, type &f/leave&a."));
+        player.teleport(map.getSpawnPoint(player));
+    }
+
     public Team getTeam(Player player) {
         for (GameMap map : this.maps) {
             for (Team team : map.queue.getTeams()) {
@@ -215,8 +225,8 @@ public class Wrapper {
         Debug.info("The team " + t.getTeamName() + " has won the game of " + map.getGame().getName() + " on " + map.name + ".");
         Debug.verbose("The players on " + t.getTeamName() + " include: " + t.getPlayers().toString());
         ArrayList<Player> winners = new ArrayList<>();
-        for (Iterator it = t.getPlayers().iterator(); it.hasNext(); ) {
-            Player winner = (Player) it.next();
+        for (Iterator<Player> it = t.getPlayers().iterator(); it.hasNext(); ) {
+            Player winner = it.next();
             //Trigger game-specific on win method
             map.getGame().getGameLifecycle().onPlayerWin(map.getGame(), map, winner);
             //Add them as a "spectator" so we can just display the win message to all spectators.
@@ -252,7 +262,6 @@ public class Wrapper {
         }
         for (Player winner : winners) {
             Debug.verbose("Sending winning title & clearing inventory for " + winner.getName());
-            Wrapper.clearInventory(winner.getInventory());
             TitleAPI.sendTitle(winner, 20, 100, 20,
                     Main.colorizeWithoutPrefix("&6&lWINNER"),
                     Main.colorizeWithoutPrefix(map.getGame().getWinnerSubtitle())
