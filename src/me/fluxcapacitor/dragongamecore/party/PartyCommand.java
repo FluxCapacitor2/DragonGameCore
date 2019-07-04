@@ -61,7 +61,10 @@ public class PartyCommand implements CommandExecutor {
                 } else if (args[0].equalsIgnoreCase("join") | args[0].equalsIgnoreCase("j")) {
                     Debug.verbose(sender.getName() + " tried to join a party with /p join.");
                     //Join a party by player name
-                    Player toJoin = Bukkit.getPlayer(args[1]);
+                    Player toJoin;
+                    if (args.length >= 2) toJoin = Bukkit.getPlayer(args[1]);
+                    else toJoin = null;
+
                     if (toJoin != null) {
                         Debug.verbose("The player is not null.");
                         Party party = PartyManager.findParty(toJoin);
@@ -103,6 +106,9 @@ public class PartyCommand implements CommandExecutor {
                     Party party = PartyManager.findParty(pSender);
                     if (party != null) {
                         party.disband();
+                        pSender.sendMessage(PartyManager.colorize("&aThe party was disbanded."));
+                    } else {
+                        sender.sendMessage(PartyManager.colorize("&cYou are not in a party!"));
                     }
                 } else if (args[0].equalsIgnoreCase("promote")) {
                     Party party = PartyManager.findParty(pSender);
