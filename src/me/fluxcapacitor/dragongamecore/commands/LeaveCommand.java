@@ -20,9 +20,8 @@ public class LeaveCommand implements CommandExecutor {
             }
             for (Team t : map.queue.getTeams()) {
                 if (t.getPlayers().contains(player)) {
-                    player.sendMessage(Main.colorize("&aYou are no longer in &f" + game.getName() + " &aon &f" + map.name + "&a."));
-                    t.removePlayer(player);
-                    Debug.verbose("Removed " + player.getName() + " from the team " + t.getTeamName() + "&r.");
+                    map.queue.removePlayerFromTeams(player);
+                    player.sendMessage(Main.colorize("&aYou have left the game of &f" + game.getName() + " &aon &f" + map.name + "&a."));
                     break;
                 }
             }
@@ -32,6 +31,7 @@ public class LeaveCommand implements CommandExecutor {
             }
             if (wasIngame) {
                 player.setGameMode(GameMode.SURVIVAL);
+                map.queue.updateQueue();
             }
             if (!player.getWorld().getName().equalsIgnoreCase("world")) {
                 Wrapper.clearInventory(player.getInventory());
