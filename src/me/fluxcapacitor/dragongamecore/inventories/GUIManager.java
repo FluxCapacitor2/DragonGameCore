@@ -1,5 +1,6 @@
 package me.fluxcapacitor.dragongamecore.inventories;
 
+import me.fluxcapacitor.dragongamecore.Debug;
 import me.fluxcapacitor.dragongamecore.DragonGame;
 import me.fluxcapacitor.dragongamecore.Wrapper;
 import org.bukkit.Material;
@@ -17,17 +18,20 @@ public class GUIManager implements Listener {
     public JoinInventory joinInv;
     public MapSelectInventory mapInv;
     public TeamSelectInventory teamInv;
+    public GamesInventory gamesInv;
     public ArrayList<GUI> guis;
 
     public GUIManager() {
         this.joinInv = new JoinInventory();
         this.mapInv = new MapSelectInventory();
         this.teamInv = new TeamSelectInventory();
+        this.gamesInv = new GamesInventory();
         this.guis = new ArrayList<>();
 
         this.guis.add(joinInv);
         this.guis.add(mapInv);
         this.guis.add(teamInv);
+        this.guis.add(gamesInv);
     }
 
     @EventHandler
@@ -36,13 +40,14 @@ public class GUIManager implements Listener {
         Inventory inventory = event.getInventory();
         for (GUI gui : guis) {
             if (gui.inventories.contains(inventory)) {
-                DragonGame game = Wrapper.findGame(inventory.getTitle());
-                assert game != null;
-                Player player = (Player) event.getWhoClicked();
-                Wrapper wrapper = game.getWrapper();
-                int slot = event.getSlot();
                 event.setCancelled(true);
+                DragonGame game = Wrapper.findGame(inventory.getTitle());
+                Player player = (Player) event.getWhoClicked();
+                Wrapper wrapper = null;
+                if (game != null) wrapper = game.getWrapper();
+                int slot = event.getSlot();
                 if (inventory.getItem(slot) != null && !inventory.getItem(slot).getType().equals(Material.AIR)) {
+                    Debug.verbose(String.format("Handling GUI click: slot = %s, player = %s, inventory = %s, item = %s", slot, player, inventory, inventory.getItem(slot)));
                     gui.handleClick(game, wrapper, player, inventory, slot, event.getClick());
                 }
             }
