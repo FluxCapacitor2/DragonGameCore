@@ -30,7 +30,9 @@ commands:
   party:
     description: Create or manage a party.
     usage: "§cUsage: /party <help|invite|kick|disband|promote|leave|list|chat> ..."
-    aliases: ['p']
+  p:
+    description: Create or manage a party.
+    usage: "§cUsage: /p <help|invite|kick|disband|promote|leave|list|chat> ..."
   aaaddmap:
     description: Add a map to a minigame.
     usage: "§cUsage: /aaaddmap <game> <x1> <y1> <z1> <x2> <y2> <z2> <mapName>"
