@@ -8,7 +8,6 @@ import me.fluxcapacitor.dragongamecore.Wrapper;
 import me.fluxcapacitor.dragongamecore.util.Items;
 import me.fluxcapacitor.dragongamecore.util.Text;
 import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -53,14 +52,12 @@ public class MapSelectInventory extends GUI {
             try {
                 GameMap map = wrapper.maps.get(slot);
                 if (clickType.equals(ClickType.RIGHT) | clickType.equals(ClickType.SHIFT_RIGHT)) {
-                    map.queue.spectators.add(player);
-                    player.setGameMode(GameMode.SPECTATOR);
-                    player.teleport(map.getSpawnPoint(player));
+                    Wrapper.spectate(map, player);
                 } else {
                     map.queue.add(player);
                 }
                 player.closeInventory();
-            } catch (Exception e) {
+            } catch (Exception ignored) {
                 //They might have clicked on air...
                 //We couldn't find the map, so we can't really do anything about this.
             }
