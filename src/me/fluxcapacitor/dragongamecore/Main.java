@@ -82,6 +82,7 @@ public class Main extends JavaPlugin {
         this.getCommand("aareload").setTabCompleter(this);
         this.getCommand("aadebug").setTabCompleter(this);
         this.getCommand("aaspawnpoint").setTabCompleter(this);
+        Debug.info("DragonGameCore has been enabled.");
     }
 
     @Override
@@ -217,5 +218,6 @@ public class Main extends JavaPlugin {
 
             }
         }
+        Debug.info("DragonGameCore has been disabled.");
     }
 }
