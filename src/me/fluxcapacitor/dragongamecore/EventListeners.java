@@ -1,9 +1,7 @@
 package me.fluxcapacitor.dragongamecore;
 
-import com.connorlinfoot.titleapi.TitleAPI;
 import me.fluxcapacitor.dragongamecore.party.Party;
 import me.fluxcapacitor.dragongamecore.party.PartyManager;
-import org.bukkit.GameMode;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,6 +22,9 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Most event listeners in this plugin are here.
  *
@@ -33,6 +34,7 @@ public class EventListeners implements Listener {
 
     private final DragonGame game;
     private final Wrapper wrapper;
+    private Map<Player, GameMap> spectateOnRespawn = new HashMap<>();
 
     EventListeners(DragonGame game) {
         this.game = game;
@@ -44,6 +46,11 @@ public class EventListeners implements Listener {
     public void onPlayerRespawn(PlayerRespawnEvent event) {
         if (wrapper.isIngame(event.getPlayer())) {
             Debug.verbose(event.getPlayer().getName() + " has respawned. They are ingame.");
+            if (spectateOnRespawn.get(event.getPlayer()) != null) {
+                Debug.verbose(event.getPlayer().getName() + " respawned and should start spectating now.");
+                Wrapper.spectate(spectateOnRespawn.get(event.getPlayer()), event.getPlayer());
+                spectateOnRespawn.remove(event.getPlayer());
+            }
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -73,16 +80,7 @@ public class EventListeners implements Listener {
                             //Set them into spectator mode & teleport them to the arena.
                             //Also tell them how to get out
                             //Teleport them to the arena's spawn point in spectator mode so they can watch
-                            new BukkitRunnable() {
-                                @Override
-                                public void run() {
-                                    player.setGameMode(GameMode.SPECTATOR);
-                                    TitleAPI.sendTitle(player, 20, 80, 20,
-                                            Main.colorizeWithoutPrefix("&aYou are now spectating"),
-                                            Main.colorizeWithoutPrefix("&aTo leave, type &f/leave&a."));
-                                    player.teleport(map.getSpawnPoint(player));
-                                }
-                            }.runTaskLater(game.getInstance(), 2L);
+                            spectateOnRespawn.put(player, map);
                         } else {
                             Debug.verbose(player.getName() + " was the last in the game. They were not teleported or put into spectator mode.");
                         }
@@ -153,15 +151,14 @@ public class EventListeners implements Listener {
     @EventHandler
     @SuppressWarnings("unused")
     public void onPlayerDeath(PlayerDeathEvent event) {
-        Debug.verbose(event.getEntity().getName() + " has died.");
         if (wrapper.isIngame(event.getEntity())) event.getDrops().clear();
     }
 
     @EventHandler
     @SuppressWarnings("unused")
     public void onPlayerJoin(PlayerJoinEvent event) {
-        Debug.verbose(event.getPlayer().getName() + " has joined the server.");
         event.getPlayer().setMaxHealth(20.0D);
+        event.getPlayer().setHealth(20.0D);
     }
 
     @EventHandler
@@ -176,18 +173,21 @@ public class EventListeners implements Listener {
     public void onPlayerDamage(EntityDamageEvent event) {
         EntityDamageEvent.DamageCause cause = event.getCause();
         if (event.getEntityType().equals(EntityType.PLAYER)) {
+            //If they're in a game that isn't started, cancel the damage.
             Player player = (Player) event.getEntity();
+            DragonGame game = Wrapper.findGame(player);
+            if (game != null && game.getWrapper().isIngame(player) && !game.getMap(player).queue.gameStarted) {
+                event.setCancelled(true);
+                return;
+            }
             if (!cause.equals(EntityDamageEvent.DamageCause.LAVA) && !cause.equals(EntityDamageEvent.DamageCause.VOID) && !cause.equals(EntityDamageEvent.DamageCause.MAGIC)) {
-                DragonGame game = Wrapper.findGame(player);
                 if (game != null && game.isDisableDamage()) {
                     Debug.verbose("Cancelling damage to " + player.getName() + " because it is disabled in " + game.getName() + ".");
                     event.setCancelled(true);
                 }
             } else if (cause.equals(EntityDamageEvent.DamageCause.VOID)) {
-                DragonGame game = Wrapper.findGame(player);
                 if (game != null && game.isFatalVoidDamage()) {
                     //This void damage is fatal! Kill them.
-                    PotionEffectType type;
                     PotionEffect effect = new PotionEffect(PotionEffectType.HARM, 30, 200);
                     player.addPotionEffect(effect);
                     Debug.verbose(player.getName() + " has fell into the void, which is fatal in " + game.getName() + ".");
