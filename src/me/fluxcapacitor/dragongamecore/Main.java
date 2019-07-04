@@ -74,6 +74,7 @@ public class Main extends JavaPlugin {
         this.getCommand("games").setTabCompleter(this);
         this.getCommand("spec").setTabCompleter(this);
         this.getCommand("party").setTabCompleter(this);
+        this.getCommand("p").setTabCompleter(this);
         //Tab complete: Admin commands
         this.getCommand("aaaddmap").setTabCompleter(this);
         this.getCommand("aaremovemap").setTabCompleter(this);
