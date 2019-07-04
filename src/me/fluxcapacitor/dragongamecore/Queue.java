@@ -3,7 +3,6 @@ package me.fluxcapacitor.dragongamecore;
 import com.connorlinfoot.titleapi.TitleAPI;
 import me.fluxcapacitor.dragongamecore.party.Party;
 import me.fluxcapacitor.dragongamecore.party.PartyManager;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -218,7 +217,7 @@ public class Queue {
                 }
             }
         }
-        if (!this.gameStarted && this.timerStarted && this.teams.size() + 1 <= MAX_PLAYERS_PER_LOBBY) {
+        if (!this.gameStarted && this.timerStarted && this.getPlayerCount() < MAX_PLAYERS_PER_LOBBY) {
             //They can join a game that hasn't started yet!
             //Do all of the stuff we need to do for each player (like sending titles & putting them into adventure mode)
             pregamePerPlayer(game, map, player);
@@ -228,6 +227,7 @@ public class Queue {
         } else {
             //There's already a game being played. They will just chill in the queue for now.
             if (isPriority) {
+                Debug.verbose(player.getName() + " is added in priority queue.");
                 //Put them in front of people without priority queue
                 boolean added = false;
                 for (int i = 0; i < this.queue.size(); i++) {
@@ -241,8 +241,10 @@ public class Queue {
                 if (!added) this.queue.add(player);
             } else {
                 //They don't have priority queue. Just put them at the back of the queue.
+                Debug.verbose(player.getName() + " does not have priority. They will be added at the back of the line!");
                 this.queue.add(player);
             }
+            this.updateQueue();
             if (!PartyManager.isInParty(player))
                 player.sendMessage(Main.colorize("&aYou have queued for &f" + game.getName() + "&a on &f" + map.name + "&a. You are at position " +
                         "&f" + (this.queue.indexOf(player) + 1) + "&a/&f" + this.queue.size() + "&a in the queue."));
@@ -252,7 +254,7 @@ public class Queue {
     /**
      * Update the queue and start the timer if necessary.
      */
-    private void updateQueue() {
+    public void updateQueue() {
         Debug.verbose("Updating queue...");
         int privatePartyIndex = getPrivatePartyIndex();
         Debug.verbose("Private party index: " + privatePartyIndex);
@@ -296,8 +298,11 @@ public class Queue {
      */
     private void addInternal(Player player, boolean isPriority, boolean isPrivate) {
         if (this.isInPrivate) {
+            Debug.verbose("The game is hosting a private game right now.");
             if (isPrivate) {
+                Debug.verbose(player.getName() + " is in a private party.");
                 if (this.privateParty.players.contains(player)) {
+                    Debug.verbose(player.getName() + "'s party is the same as the private party that is hosting the game.");
                     //Continue into the game because they are in the party that "owns" this game.
                     Party party = PartyManager.findParty(player);
                     assert party != null;
@@ -317,11 +322,13 @@ public class Queue {
                     if (!queued) this.addInternal(player, isPriority);
                 }
             } else {
+                Debug.verbose(player.getName() + " is not in a private party, so they were added normally.");
                 //Deny access & put them in queue
                 this.queue.add(player);
                 this.updateQueue();
             }
         } else {
+            Debug.verbose("The game isn't in private! Just adding the player without other conditions.");
             this.addInternal(player, isPriority);
         }
     }
@@ -364,12 +371,24 @@ public class Queue {
                     it.remove();
                 }
             }
+        } else if (privatePartyIndex == -1) {
+            Debug.verbose("There are no private parties in this game.");
+            for (Iterator<Player> it = this.queue.iterator(); it.hasNext(); ) {
+                Player p = it.next();
+                Debug.verbose("Adding " + p.getName() + " to the game. There is no private party in the queue.");
+                if (game.isFFA()) {
+                    this.addTeam(new Team(p));
+                }
+                pregamePerPlayer(game, map, p);
+                it.remove();
+            }
         } else {
             Debug.verbose("Just running normally because a private party is not first in the queue");
             for (Iterator<Player> it = this.queue.iterator(); it.hasNext(); ) {
                 Player p = it.next();
                 Party party = PartyManager.findParty(p);
                 if (!Objects.equals(party, privateParty)) {
+                    Debug.verbose("Adding " + p.getName() + " to the game because they are not in a private party and the private party is not first in queue.");
                     if (game.isFFA()) this.addTeam(new Team(p));
                     pregamePerPlayer(game, map, p);
                     it.remove();
@@ -380,7 +399,7 @@ public class Queue {
             }
         }
         //Make everyone invincible
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rg flag __global__ invincible -w " + getWorldName() + " allow");
+        //Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rg flag __global__ invincible -w " + getWorldName() + " allow");
         //Run game-specific pregame method.
         gameLifecycle.pregame(game, map);
     }
@@ -521,7 +540,7 @@ public class Queue {
             t.removeFriendlyFire(game);
         }
         //Reset the players' invincibility
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rg flag __global__ invincible -w " + map.queue.getWorldName());
+        //Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "rg flag __global__ invincible -w " + map.queue.getWorldName());
         for (Team t : this.teams) {
             for (Player p : t.getPlayers()) {
                 TitleAPI.sendTitle(p, 20, 60, 20, Main.colorizeWithoutPrefix("&a&lGO"), Main.colorizeWithoutPrefix(this.gameStartSubtitle));
@@ -766,5 +785,18 @@ public class Queue {
                 Debug.verbose("The team " + t.getTeamName() + " was removed because there were no players after the removal of " + player.getName() + ".");
             }
         }
+    }
+
+    /**
+     * Get a list of all players in the game, regardless of team.
+     *
+     * @return An ArrayList of <code>Player</code>s that are in the game
+     */
+    public ArrayList<Player> getAllIngamePlayers() {
+        ArrayList<Player> players = new ArrayList<>();
+        for (Team t : this.teams) {
+            players.addAll(t.getPlayers());
+        }
+        return players;
     }
 }
