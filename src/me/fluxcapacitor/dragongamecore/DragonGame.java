@@ -8,10 +8,7 @@ import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * The main class for a minigame.
@@ -48,6 +45,8 @@ public class DragonGame {
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new PlaceholderHook(this).register();
         }
+        //Put the games in alpha order
+        Main.games.sort(Comparator.comparing(DragonGame::getName));
     }
 
     public Main getInstance() {
