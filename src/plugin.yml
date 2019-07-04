@@ -29,7 +29,7 @@ commands:
     aliases: ['spectate']
   party:
     description: Create or manage a party.
-    usage: "§cUsage: /party <invite|kick|disband|promote|leave|list|chat> ..."
+    usage: "§cUsage: /party <help|invite|kick|disband|promote|leave|list|chat> ..."
     aliases: ['p']
   aaaddmap:
     description: Add a map to a minigame.
